@@ -29,7 +29,7 @@ breaks to stand up and stretch or walk around a bit, users' eyes can take a brea
 and users are able to take mental breaks and stretch parts of their body that might otherwise be 
 staying in one position for an unhealthy period of time. 
 
-Eui will aim incorporate the [Pomodoro Technique](https://todoist.com/productivity-methods/pomodoro-technique), 
+Eui will aim to incorporate the [Pomodoro Technique](https://todoist.com/productivity-methods/pomodoro-technique), 
 which allows users to focus on work in blocks of 25 minutes and rest in blocks of 5 minutes. Our 
 hope is that with Eui as a companion, users will take care of themselves more and learn the 
-importance and benefit of taking healthy breaks throughoout their work period. 
+importance and benefit of taking healthy breaks throughout their work period. 
