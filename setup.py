@@ -7,7 +7,7 @@ setup(name='virtualhat',
 	description='CompE Stub Library',
 	author='Cassandra Chow',
 	author_email='cc5718@nyu.edu',
-	url='https://github.com/ffund/virtualhat',
+	url='https://github.com/ca-chow/DesktopPet_Eui',
 	py_modules=['virtualhat'],
 	)
 
