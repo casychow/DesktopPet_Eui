@@ -47,3 +47,16 @@ def registerTap():
 def buttonPressed():
 	print("button is pressed")
 
+## display ##
+
+def displayOn():
+	print("display turns on")
+
+def displayOff():
+	print("display turns off")
+
+def displayImage():
+	print("displays an image")
+
+def displayText():
+	print("displays text")

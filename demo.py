@@ -17,3 +17,8 @@ leftTurn()
 readDist()
 registerTap()
 buttonPressed()
+
+displayOn()
+displayOff()
+displayImage()
+displayText()
