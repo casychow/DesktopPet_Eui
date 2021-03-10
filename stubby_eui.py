@@ -1,7 +1,17 @@
+import RPi.GPIO as GPIO
+from time import sleep
+
 def info():
 	'''Prints a basic library description'''
 	print("Software library for Eui.")
 
+def setupSound():
+	print("in setupSound")
+	PIN = 12
+	GPIO.setwarnings(False)
+	GPIO.setmode(GPIO.BCM)
+	GPIO.setup(PIN, GPIO.OUT)
+	return PIN
 
 ## lights ##
 
@@ -19,8 +29,12 @@ def sendByte():
 
 ## sound ##
 
-def makeSound():
+def makeSound(PIN):
 	print("piezo make a sound")
+	pwm = GPIO.PWM(PIN, 276)
+	pwm.start(1)
+	sleep(1)
+	pwm.stop()
 
 def makeMelody():
 	print("piezo plays a tone")

@@ -1,13 +1,14 @@
 from stubby_eui import *
 
 info()
+PIN = setupSound()
 
 turnOnLED()
 turnOffLED()
 changeLEDColor()
 sendByte()
 
-makeSound()
+makeSound(PIN)
 makeMelody()
 
 motorTest()
