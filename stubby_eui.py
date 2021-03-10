@@ -36,8 +36,18 @@ def makeSound(PIN):
 	sleep(1)
 	pwm.stop()
 
-def makeMelody():
-	print("piezo plays a tone")
+def playMelody(song, beat, tempo, PIN):
+	print("piezo plays a song")
+
+	pwm = GPIO.PWM(PIN, 100)
+	pwm.start(50)
+
+	for i in range(0, len(song)):
+		pwm.ChangeFrequency(song[i])
+		sleep(beat[i]*tempo)
+
+	pwm.ChangeDutyCycle(0)
+	pwm.stop()
 
 ## movements ##
 
