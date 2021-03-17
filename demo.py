@@ -32,19 +32,22 @@ LBbeats = [2, 0.5, 1, 1, 1, 1, 2, 1, 1, 2, 1, 1, 2, 2, 0.5, 1,
 
 
 info()
-PIN = setupSound()
 
 workTime(True)
 breakTime(True)
+
+btnPIN = setupBtnForTimer()
+waitForBtnPress(btnPIN, 10)	# 10 sec
 
 turnOnLED()
 turnOffLED()
 changeLEDColor()
 sendByte()
 
-makeSound(PIN)
+buzzPIN = setupSound()
+makeSound(buzzPIN)
 sleep(2)
-playMelody(londonBridge, LBbeats, 0.3, PIN)
+playMelody(londonBridge, LBbeats, 0.3, buzzPIN)
 
 motorTest()
 rightTurn()

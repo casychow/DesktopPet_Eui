@@ -27,6 +27,49 @@ def breakTime(testing=False):
 
 	print("Break is over")
 
+def setupBtnForTimer():
+        print("in setupBtnForTimer")
+        PIN = 17
+        GPIO.setwarnings(False)
+        GPIO.setmode(GPIO.BCM)
+        GPIO.setup(PIN, GPIO.IN)
+        return PIN
+
+def waitForBtnPress(PIN, duration):
+        timerRunning = False    # timer is initially not running
+
+	try:
+		print("Waiting for button press to start timer...")
+		print("NOTE: ^C to stop testing waitForBtnPress")
+        	while True:
+                	btnPressed = GPIO.input(PIN) # 0 is false & 1 is true
+                	time.sleep(0.5)
+
+                	# button pressed to end timer
+                	if (btnPressed and timerRunning):
+                        	print("Timer forced to end")
+                        	timerRunning = False
+				print("Waiting for button press to start timer...")
+                        	continue
+
+                	# button pressed to start timer
+                	if (btnPressed and not timerRunning):
+                        	print("Timer starts")
+                        	start = time.time()
+	                        timerRunning = True
+
+		 	# timer is running
+                	if (timerRunning):
+                        	if (time.time()-start >= duration):
+                                	print("Time ended")
+                                	timerRunning = False
+					print("Waiting for button press to start timer...")
+
+	except KeyboardInterrupt:
+		print("waitForBtnEnd forced to end")
+		GPIO.cleanup()
+		time.sleep(1)
+
 ## lights ##
 
 def turnOnLED():
