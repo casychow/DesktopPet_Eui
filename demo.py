@@ -34,6 +34,9 @@ LBbeats = [2, 0.5, 1, 1, 1, 1, 2, 1, 1, 2, 1, 1, 2, 2, 0.5, 1,
 info()
 PIN = setupSound()
 
+workTime(True)
+breakTime(True)
+
 turnOnLED()
 turnOffLED()
 changeLEDColor()

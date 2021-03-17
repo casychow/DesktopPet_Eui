@@ -1,17 +1,31 @@
 import RPi.GPIO as GPIO
-from time import sleep
+import time
 
 def info():
 	'''Prints a basic library description'''
 	print("Software library for Eui.")
 
-def setupSound():
-	print("in setupSound")
-	PIN = 12
-	GPIO.setwarnings(False)
-	GPIO.setmode(GPIO.BCM)
-	GPIO.setup(PIN, GPIO.OUT)
-	return PIN
+## timers ##
+
+def workTime(testing=False):
+	print("Start work time!")
+
+	if (testing):			# for testing purposes just wait 0.5s
+		time.sleep(0.5)
+	else:
+		time.sleep(25*60)	# 25min of focused work time
+
+	print("Time for a break!")
+
+def breakTime(testing=False):
+	print("It's break time!")
+
+	if (testing):			# for testing purposes just wait 0.5s
+		time.sleep(0.5)
+	else:
+		time.sleep(5*60)	# 5 min of break
+
+	print("Break is over")
 
 ## lights ##
 
@@ -29,11 +43,19 @@ def sendByte():
 
 ## sound ##
 
+def setupSound():
+        print("in setupSound")
+        PIN = 12
+        GPIO.setwarnings(False)
+        GPIO.setmode(GPIO.BCM)
+        GPIO.setup(PIN, GPIO.OUT)
+        return PIN
+
 def makeSound(PIN):
 	print("piezo make a sound")
 	pwm = GPIO.PWM(PIN, 276)
 	pwm.start(1)
-	sleep(1)
+	time.sleep(1)
 	pwm.stop()
 
 def playMelody(song, beat, tempo, PIN):
@@ -44,7 +66,7 @@ def playMelody(song, beat, tempo, PIN):
 
 	for i in range(0, len(song)):
 		pwm.ChangeFrequency(song[i])
-		sleep(beat[i]*tempo)
+		time.sleep(beat[i]*tempo)
 
 	pwm.ChangeDutyCycle(0)
 	pwm.stop()
