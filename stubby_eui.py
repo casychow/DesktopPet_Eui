@@ -36,33 +36,33 @@ def setupBtnForTimer():
         return PIN
 
 def waitForBtnPress(PIN, duration):
-        timerRunning = False    # timer is initially not running
+	timerRunning = False    # timer is initially not running
 
 	try:
 		print("Waiting for button press to start timer...")
 		print("NOTE: ^C to stop testing waitForBtnPress")
-        	while True:
-                	btnPressed = GPIO.input(PIN) # 0 is false & 1 is true
-                	time.sleep(0.5)
+		while True:
+			btnPressed = GPIO.input(PIN) # 0 is false & 1 is true
+			time.sleep(0.5)
 
                 	# button pressed to end timer
-                	if (btnPressed and timerRunning):
-                        	print("Timer forced to end")
-                        	timerRunning = False
+			if (btnPressed and timerRunning):
+				print("Timer forced to end")
+				timerRunning = False
 				print("Waiting for button press to start timer...")
-                        	continue
+				continue
 
                 	# button pressed to start timer
-                	if (btnPressed and not timerRunning):
-                        	print("Timer starts")
-                        	start = time.time()
-	                        timerRunning = True
+			if (btnPressed and not timerRunning):
+				print("Timer starts")
+				start = time.time()
+				timerRunning = True
 
 		 	# timer is running
-                	if (timerRunning):
-                        	if (time.time()-start >= duration):
-                                	print("Time ended")
-                                	timerRunning = False
+			if (timerRunning):
+				if (time.time()-start >= duration):
+					print("Time ended")
+					timerRunning = False
 					print("Waiting for button press to start timer...")
 
 	except KeyboardInterrupt:
@@ -87,12 +87,12 @@ def sendByte():
 ## sound ##
 
 def setupSound():
-        print("in setupSound")
-        PIN = 12
-        GPIO.setwarnings(False)
-        GPIO.setmode(GPIO.BCM)
-        GPIO.setup(PIN, GPIO.OUT)
-        return PIN
+	print("in setupSound")
+	PIN = 12
+	GPIO.setwarnings(False)
+	GPIO.setmode(GPIO.BCM)
+	GPIO.setup(PIN, GPIO.OUT)
+	return PIN
 
 def makeSound(PIN):
 	print("piezo make a sound")
