@@ -1,15 +1,40 @@
 # Import Flask Library
-from flask import Flask, redirect, render_template
+from flask import Flask, redirect, render_template, request
 app = Flask(__name__, static_folder='')
+
+# Globals
+USERNAME = "Buddy"
+workPeriod = 25
+restPeriod = 5
 
 # Load pages
 @app.route("/")
 def loadHome():
-    return render_template('index.html')
+    return render_template('index.html', username=USERNAME)
+
+@app.route('/editname', methods=['GET', 'POST'])
+def editName():
+    username = request.form['username']
+
+    if (username != ""):
+        global USERNAME
+        USERNAME = username
+
+    return render_template('index.html', username=USERNAME)
 
 @app.route("/pomodoro")
 def loadPomodoro():
-    return render_template('pomodoro.html')
+    return render_template('pomodoro.html', workPeriod=workPeriod, restPeriod=restPeriod)
+
+@app.route("/editpomodorotimer", methods=['GET', 'POST'])
+def editPomodoroTimer():
+    global workPeriod
+    global restPeriod
+
+    workPeriod = request.form['newWorkPeriod']
+    restPeriod = request.form['newRestPeriod']
+
+    return render_template('pomodoro.html', workPeriod=workPeriod, restPeriod=restPeriod)
 
 @app.route("/statistic")
 def loadStatistic():

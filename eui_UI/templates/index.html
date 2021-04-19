@@ -28,19 +28,17 @@
             </div>
         </div>
     </nav>
-    <div class="container">
-        <h1><strong>Welcome&nbsp;<em>Buddy</em>!&nbsp;<i class="far fa-grin-stars"></i></strong></h1>
+    <div class="container"><h1><strong>Welcome <em>{{username}}</em>! <i class="far fa-grin-stars"></i></strong></h1>
         <div class="card">
             <div class="card-body">
                 <h4 class="card-title">What is Eui?</h4>
                 <p class="card-text">Eui is a support companion whose job is to remind you to take healthy breaks from sitting in front of your laptop and/or completing a task that requires a lot of thinking and time. By taking healthy breaks to stand up and stretch or walk around a bit, your eyes can take a break from the screen, and you are able to take mental breaks and stretch parts of your body that might otherwise be staying in one position for an unhealthy period of time. Eui incorporates the Pomodoro Technique, which allows you to focus on work in blocks of 25 minutes and rest in blocks of 5 minutes.&nbsp;</p>
             </div>
-        </div><em></em>
-        <h1><small style="font-size: 24px;"><em>Buddy</em>, do you want to share/change your name?</small></h1>
-        <div class="form-group">
-            <div class="card">
-                <div class="card-body"><input type="text"><button class="btn btn-primary" type="button" style="margin: 5px;">Save Name</button></div>
-            </div>
+        </div><em></em><h1><small style="font-size: 24px;"><em>{{username}}</em>, do you want to share/change your name?</small></h1><div class="card">
+            <form action="/editname" method="POST">
+                <input type="text" name="username"/>
+                <button class="btn btn-primary" type="submit" style="margin: 5px;">Save Name</button>
+            </form>
         </div>
     </div>
     <script src="assets/js/jquery.min.js"></script>
