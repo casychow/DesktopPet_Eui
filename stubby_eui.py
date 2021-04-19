@@ -119,6 +119,48 @@ def playMelody(song, beat, tempo, PIN):
 
 def motorTest():
 	print("power motors on")
+	GPIO.setmode(GPIO.BCM)
+	GPIO.setwarnings(False)
+
+	in1 = 2
+	in2 = 3
+	en1 = 4    # Enable Pin for wheel 1
+	in3 = 1    # Input Pin
+	in4 = 0    # Input Pin
+	en2 = 5    # Enable Pin for wheel 2
+
+	GPIO.setup(in1, GPIO.OUT)
+	GPIO.setup(in2, GPIO.OUT)
+	GPIO.setup(en1, GPIO.OUT)
+	GPIO.setup(in3, GPIO.OUT)
+	GPIO.setup(in4, GPIO.OUT)
+	GPIO.setup(en2, GPIO.OUT)
+
+	print("\tFORWARD MOTION")
+	GPIO.output(in1, GPIO.HIGH)
+	GPIO.output(in2, GPIO.LOW)
+	GPIO.output(en1, GPIO.HIGH)
+	GPIO.output(in3, GPIO.HIGH)
+	GPIO.output(in4, GPIO.LOW)
+	GPIO.output(en2, GPIO.HIGH)
+
+	time.sleep(3)
+
+	print("\tBACKWARD MOTION")
+	GPIO.output(in1, GPIO.LOW)
+	GPIO.output(in2, GPIO.HIGH)
+	GPIO.output(en1, GPIO.HIGH)
+	GPIO.output(in3, GPIO.LOW)
+	GPIO.output(in4, GPIO.HIGH)
+	GPIO.output(en2, GPIO.HIGH)
+
+	time.sleep(3)
+
+	print("\tSTOP")
+	GPIO.output(en1, GPIO.LOW)
+	GPIO.output(en2, GPIO.LOW)
+
+	GPIO.cleanup()
 
 def rightTurn():
 	print("make right turn")
@@ -151,7 +193,7 @@ def readDist(spiChannel):
 
 	try:
 		while True:
-			print("NOTE: ^C to stop testing readDist")
+			print("\tNOTE: ^C to stop testing readDist")
 			print("\tdistance in cm:", readADC(spi, spiChannel))
 			print()
 			time.sleep(1)
