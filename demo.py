@@ -53,7 +53,7 @@ motorTest()
 rightTurn()
 leftTurn()
 
-readDist()
+readDist(0)
 registerTap()
 buttonPressed()
 

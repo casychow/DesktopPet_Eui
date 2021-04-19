@@ -1,5 +1,6 @@
 import RPi.GPIO as GPIO
 import time
+import spidev
 
 def info():
 	'''Prints a basic library description'''
@@ -127,8 +128,36 @@ def leftTurn():
 
 ## sensors ##
 
-def readDist():
+def readADC(spi, channel):
+	if ((channel > 3) or (channel < 0)):
+		return -1
+	reply = spi.xfer2([1, (8 + channel) << 4, 0])
+	adc = ((reply[1] & 3) << 8) + reply[2]
+	v = (3.3 * adc) / 1024 #3.3 is Vref
+	print("\tvoltage =", v)
+	dist = 16.2537 * v**4 - 129.893 * v**3 + 382.268 * v**2 - 512.611 * v + 306.439
+	#still need to figure out correct formula
+	cm = int(round(dist))
+	return cm
+
+def readDist(spiChannel):
 	print("distance read by sensor")
+	GPIO.setwarnings(False)
+	GPIO.setmode(GPIO.BCM)
+	spi = spidev.SpiDev()
+	#spiChannel = 0
+	spi.open(0,spiChannel) # SPI Port 0, Chip Select 0
+	spi.max_speed_hz = 7629
+
+	try:
+		while True:
+			print("NOTE: ^C to stop testing readDist")
+			print("\tdistance in cm:", readADC(spi, spiChannel))
+			print()
+			time.sleep(1)
+	except KeyboardInterrupt:
+		spi.close()
+		GPIO.cleanup()
 
 def registerTap():
 	print("gets a signal from linear softpot")
