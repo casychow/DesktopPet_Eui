@@ -11,6 +11,7 @@ restPeriod = 5
 @app.route("/")
 def loadHome():
     return render_template('index.html', username=USERNAME)
+    # return app.send_static_file('index.html')
 
 @app.route('/editname', methods=['GET', 'POST'])
 def editName():
