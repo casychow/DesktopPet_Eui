@@ -1,6 +1,6 @@
 # Import Flask Library
 from flask import Flask, redirect, render_template, request
-app = Flask(__name__, static_folder='')
+app = Flask(__name__, static_folder='assets')
 
 # Globals
 USERNAME = "Buddy"
