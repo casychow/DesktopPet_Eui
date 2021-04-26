@@ -2,7 +2,7 @@
 from flask import Flask, redirect, render_template, request
 app = Flask(__name__, static_folder='assets')
 
-# Globals
+# Globals (these will all be stored in database)
 USERNAME = "Buddy"
 workPeriod = 25
 restPeriod = 5
@@ -14,13 +14,15 @@ restOption = 1
 workPersonalized = ""
 restPersonalized = ""
 
+soundOption = 1
+motionOption = 1
+lightOption = 1
 
+# Handle Home page
 
-# Load pages
 @app.route("/")
 def loadHome():
     return render_template('index.html', username=USERNAME)
-    # return app.send_static_file('index.html')
 
 @app.route('/editname', methods=['GET', 'POST'])
 def editName():
@@ -32,9 +34,12 @@ def editName():
 
     return render_template('index.html', username=USERNAME)
 
+# Handle Pomodoro page
+
 @app.route("/pomodoro")
 def loadPomodoro():
-    return render_template('pomodoro.html', workPeriod=workPeriod, restPeriod=restPeriod, 
+    return render_template('pomodoro.html', workOption=workOption, restOption=restOption, 
+                            workPeriod=workPeriod, restPeriod=restPeriod, 
                             numReminder=numReminder, numSnooze=numSnooze, 
                             setWorkPersonalized=workPersonalized, setRestPersonalized=restPersonalized)
 
@@ -66,6 +71,7 @@ def editPomodoroTimer():
     ''' Retreive Accountability Fields '''
 
     global workPersonalized
+    global workOption
     getOption = request.form['workOptions']
 
     if (getOption == "work_option1"):
@@ -75,11 +81,13 @@ def editPomodoroTimer():
         workOption = 2
         workPersonalized = ""
     else:
+        workOption = 3
         getVal = request.form['workPersonalized']
         if (getVal != ""):
             workPersonalized = getVal
 
     global restPersonalized
+    global restOption
     getOption = request.form['restOptions']
 
     if (getOption == "rest_option1"):
@@ -89,21 +97,73 @@ def editPomodoroTimer():
         restOption = 2
         restPersonalized = ""
     else:
+        restOption = 3
         getVal = request.form['restPersonalized']
         if (getVal != ""):
             restPersonalized = getVal
 
-    return render_template('pomodoro.html', workPeriod=workPeriod, restPeriod=restPeriod, 
+    return render_template('pomodoro.html', workOption=workOption, restOption=restOption, 
+                            workPeriod=workPeriod, restPeriod=restPeriod, 
                             numReminder=numReminder, numSnooze=numSnooze, 
                             setWorkPersonalized=workPersonalized, setRestPersonalized=restPersonalized)
+
+# Handle Statistics page
 
 @app.route("/statistic")
 def loadStatistic():
     return render_template('statistic.html')
 
+# Handle Alert page
+
 @app.route("/alert")
 def loadAlert():
-    return render_template('alert.html')
+    return render_template('alert.html', soundOption=soundOption, motionOption=motionOption, lightOption=lightOption)
+
+@app.route("/editalert", methods=['GET', 'POST'])
+def editAlert():
+    getOption = request.form['soundOptions']
+    global soundOption
+
+    if (getOption == "sound_option1"):
+        soundOption = 1
+    elif (getOption == "sound_option2"):
+        soundOption = 2
+    elif (getOption == "sound_option3"):
+        soundOption = 3
+    elif (getOption == "sound_option4"):
+        soundOption = 4
+
+    getOption = request.form['motionOptions']
+    global motionOption
+
+    if (getOption == "motion_option1"):
+        motionOption = 1
+    elif (getOption == "motion_option2"):
+        motionOption = 2
+    elif (getOption == "motion_option3"):
+        motionOption = 3
+    elif (getOption == "motion_option4"):
+        motionOption = 4
+    elif (getOption == "motion_option5"):
+        motionOption = 5
+
+    getOption = request.form['lightOptions']
+    global lightOption
+
+    if (getOption == "light_option1"):
+        lightOption = 1
+    elif (getOption == "light_option2"):
+        lightOption = 2
+    elif (getOption == "light_option3"):
+        lightOption = 3
+    elif (getOption == "light_option4"):
+        lightOption = 4
+    elif (getOption == "light_option5"):
+        lightOption = 5
+
+    return render_template('alert.html', soundOption=soundOption, motionOption=motionOption, lightOption=lightOption)
+
+# Load Contacts page
 
 @app.route("/contact_us")
 def loadContactUs():

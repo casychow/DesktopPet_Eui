@@ -30,57 +30,89 @@
     </nav>
     <div class="container">
         <h1>Alert Setup</h1>
-        <div class="card-group">
-            <div class="card">
-                <div class="card-body">
-                    <div class="card">
-                        <div class="card-body">
-                            <h4 class="card-title">Sound</h4>
-                            <h4 class="card-title"><small>Configure the melody</small></h4>
-                            <div class="form-group">
-                                <div class="form-check"><input class="form-check-input" type="radio" id="formCheck-1" checked=""><label class="form-check-label" for="formCheck-1">London Bridge Is Falling Down (default)</label></div>
-                                <div class="form-check"><input class="form-check-input" type="radio" id="formCheck-3"><label class="form-check-label" for="formCheck-2">Twinkle Twinkle Little Star</label></div>
-                                <div class="form-check"><input class="form-check-input" type="radio" id="formCheck-4"><label class="form-check-label" for="formCheck-2">English Alphabet Song</label></div>
-                                <div class="form-check"><input class="form-check-input" type="radio" id="formCheck-4"><label class="form-check-label" for="formCheck-2">No sound</label></div>
+        <form action="/editalert" method="POST">
+            <div class="card-group">
+                <div class="card">
+                    <div class="card-body">
+                        <div class="card">
+                            <div class="card-body">
+                                <h4 class="card-title">Sound</h4>
+                                <h4 class="card-title"><small>Configure the melody</small></h4>
+                                <div class="form-group">
+                                    <div class="form-check"><input class="form-check-input" type="radio" name="soundOptions" id="sound_option1" value="sound_option1"><label class="form-check-label" for="sound_option1">London Bridge Is Falling Down (default)</label></div>
+                                    <div class="form-check"><input class="form-check-input" type="radio" name="soundOptions" id="sound_option2" value="sound_option2"><label class="form-check-label" for="sound_option2">Twinkle Twinkle Little Star</label></div>
+                                    <div class="form-check"><input class="form-check-input" type="radio" name="soundOptions" id="sound_option3" value="sound_option3"><label class="form-check-label" for="sound_option3">English Alphabet Song</label></div>
+                                    <div class="form-check"><input class="form-check-input" type="radio" name="soundOptions" id="sound_option4" value="sound_option4"><label class="form-check-label" for="sound_option4">No sound</label></div>
+                                </div>
                             </div>
                         </div>
-                    </div>
-                    <div class="card">
-                        <div class="card-body">
-                            <h4 class="card-title">Motion</h4>
-                            <h4 class="card-title"><small>Configure the motion</small></h4>
-                            <div class="form-group">
-                                <div class="form-check"><input class="form-check-input" type="radio" id="formCheck-1" checked=""><label class="form-check-label" for="formCheck-1">Forward and back (default)</label></div>
-                                <div class="form-check"><input class="form-check-input" type="radio" id="formCheck-3"><label class="form-check-label" for="formCheck-2">Circles</label></div>
-                                <div class="form-check"><input class="form-check-input" type="radio" id="formCheck-2"><label class="form-check-label" for="formCheck-2">Move all around</label></div>
-                                <div class="form-check"><input class="form-check-input" type="radio" id="formCheck-5"><label class="form-check-label" for="formCheck-2">Mini dance</label></div>
-                                <div class="form-check"><input class="form-check-input" type="radio" id="formCheck-5"><label class="form-check-label" for="formCheck-2">No movement</label></div>
+                        <div class="card">
+                            <div class="card-body">
+                                <h4 class="card-title">Motion</h4>
+                                <h4 class="card-title"><small>Configure the motion</small></h4>
+                                <div class="form-group">
+                                    <div class="form-check"><input class="form-check-input" type="radio" name="motionOptions" id="motion_option1" value="motion_option1"><label class="form-check-label" for="motion_option1">Forward and back (default)</label></div>
+                                    <div class="form-check"><input class="form-check-input" type="radio" name="motionOptions" id="motion_option2" value="motion_option2"><label class="form-check-label" for="motion_option2">Circles</label></div>
+                                    <div class="form-check"><input class="form-check-input" type="radio" name="motionOptions" id="motion_option3" value="motion_option3"><label class="form-check-label" for="motion_option3">Move all around</label></div>
+                                    <div class="form-check"><input class="form-check-input" type="radio" name="motionOptions" id="motion_option4" value="motion_option4"><label class="form-check-label" for="motion_option4">Mini dance</label></div>
+                                    <div class="form-check"><input class="form-check-input" type="radio" name="motionOptions" id="motion_option5" value="motion_option5"><label class="form-check-label" for="motion_option5">No movement</label></div>
+                                </div>
                             </div>
                         </div>
-                    </div>
-                    <div class="card">
-                        <div class="card-body">
-                            <h4 class="card-title">Lights</h4>
-                            <h4 class="card-title"><small>Configure the lights</small></h4>
-                            <div class="form-group">
-                                <div class="form-check"><input class="form-check-input" type="radio" id="formCheck-6" checked=""><label class="form-check-label" for="formCheck-1">Dangerous - Alerting shades of red (default)</label></div>
-                                <div class="form-check"><input class="form-check-input" type="radio" id="formCheck-7"><label class="form-check-label" for="formCheck-2">Ocean Wave - Calming shades of blue</label></div>
-                                <div class="form-check"><input class="form-check-input" type="radio" id="formCheck-2"><label class="form-check-label" for="formCheck-2">Rainbow - Distracting colors/patterns</label></div>
-                                <div class="form-check"><input class="form-check-input" type="radio" id="formCheck-8"><label class="form-check-label" for="formCheck-2">NYU Spirits - Very purple</label></div>
-                                <div class="form-check"><input class="form-check-input" type="radio" id="formCheck-9"><label class="form-check-label" for="formCheck-2">No lights</label></div>
+                        <div class="card">
+                            <div class="card-body">
+                                <h4 class="card-title">Lights</h4>
+                                <h4 class="card-title"><small>Configure the lights</small></h4>
+                                <div class="form-group">
+                                    <div class="form-check"><input class="form-check-input" type="radio" name="lightOptions" id="light_option1" value="light_option1"><label class="form-check-label" for="light_option1">Dangerous - Alerting shades of red (default)</label></div>
+                                    <div class="form-check"><input class="form-check-input" type="radio" name="lightOptions" id="light_option2" value="light_option2"><label class="form-check-label" for="light_option2">Ocean Wave - Calming shades of blue</label></div>
+                                    <div class="form-check"><input class="form-check-input" type="radio" name="lightOptions" id="light_option3" value="light_option3"><label class="form-check-label" for="light_option3">Rainbow - Distracting colors/patterns</label></div>
+                                    <div class="form-check"><input class="form-check-input" type="radio" name="lightOptions" id="light_option4" value="light_option4"><label class="form-check-label" for="light_option4">NYU Spirits - Very purple</label></div>
+                                    <div class="form-check"><input class="form-check-input" type="radio" name="lightOptions" id="light_option5" value="light_option5"><label class="form-check-label" for="light_option5">No lights</label></div>
+                                </div>
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
-        </div>
+            <hr>
+            <div role="group" class="btn-group">
+                <button class="btn btn-primary" type="submit" style="margin: 5px;">Save Changes</button>
+                <button class="btn btn-link" type="button" style="margin: 5px;" onclick="history.back(-1)">Go Back</button>
+            </div>
+        </form>
     </div>
-    <hr>
-    <div class="container" style="height: 60px;"><div role="group" class="btn-group"><button class="btn btn-primary" type="button" style="margin: 5px;">Save Changes</button><button class="btn btn-link" type="button" style="margin: 5px;" onclick="history.back(-1)">Go Back</button></div></div>
     <script src="assets/js/jquery.min.js"></script>
     <script src="assets/bootstrap/js/bootstrap.min.js"></script>
     <script src="assets/js/chart.min.js"></script>
     <script src="assets/js/bs-init.js"></script>
+    <script>
+        $(document).ready(function () {
+            var sound = "{{ soundOption }}";
+            var motion = "{{ motionOption }}";
+            var light = "{{ lightOption }}";
+
+            if(window.location.href.indexOf("editalert") > -1 || window.location.href.indexOf("alert") > -1) {
+                $('input[name="soundOptions"]').each(function(ind, option){
+                    $("#"+option.value).prop("checked", false);
+                });
+
+                $("#sound_option"+sound).prop("checked", true);          
+                
+                $('input[name="motionOptions"]').each(function(ind, option){
+                    $("#"+option.value).prop("checked", false);
+                });
+
+                $("#motion_option"+motion).prop("checked", true);   
+
+                $('input[name="lightOptions"]').each(function(ind, option){
+                    $("#"+option.value).prop("checked", false);
+                });
+
+                $("#light_option"+light).prop("checked", true);   
+            }
+        });
+    </script>
 </body>
 
 </html>

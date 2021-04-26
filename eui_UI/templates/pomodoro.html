@@ -84,7 +84,7 @@
             </div>
             <hr>
             <div role="group" class="btn-group">
-                <button class="btn btn-primary" type="submit" style="margin: 5px;" onclick="handleSubmission()">Save Changes</button>
+                <button class="btn btn-primary" type="submit" style="margin: 5px;">Save Changes</button>
                 <button class="btn btn-link" type="button" style="margin: 5px;" onclick="history.back(-1)">Go Back</button>
             </div>
         </form>
@@ -94,52 +94,63 @@
     <script src="assets/js/chart.min.js"></script>
     <script src="assets/js/bs-init.js"></script>
     <script> 
-        function updateChecked(idSelector){
-            const options = document.querySelectorAll(idSelector);
-            for (const option of options){
-                localStorage.removeItem(option.value);
-                localStorage.setItem(option.value, option.checked);
-            }
-        }
-
-        function handleSubmission(){
-            if ((document.getElementById("work_option3").checked && document.getElementById('workPersonalized').value === "" && $('#workPersonalized')[0].placeholder == "")
-                || (document.getElementById("rest_option3").checked && document.getElementById('restPersonalized').value === "" && $('#restPersonalized')[0].placeholder == "")){
-                alert("Please try again! (Need to fill out OTHER)");
-            } 
-            
-            updateChecked('input[name="workOptions"]');
-            updateChecked('input[name="restOptions"]');
-        } 
-
         $(document).ready(function () {
-            if(window.location.href.indexOf("editpomodorotimer") > -1 || window.location.href.indexOf("pomodoro") > -1) {
-                var notFound = 0;
+            var work = "{{ workOption }}";
+            var rest = "{{ restOption }}";
 
+            if(window.location.href.indexOf("editpomodorotimer") > -1 || window.location.href.indexOf("pomodoro") > -1) {
                 $('input[name="workOptions"]').each(function(ind, option){
-                    if (localStorage.getItem(option.value)==null){
-                        notFound += 1;
-                    }
-                    $("#"+option.value).prop("checked", localStorage.getItem(option.value)==="true");
+                    $("#"+option.value).prop("checked", false);
                 });
 
-                if (notFound == 3){ // if none of the workOptions are selected, set default to the first option
-                    $("#work_option1").prop("checked", true);
-                }
-
-                notFound = 0;
+                $("#work_option"+work).prop("checked", true); 
 
                 $('input[name="restOptions"]').each(function(ind, option){
-                    if (localStorage.getItem(option.value)==null){
-                        notFound += 1;
-                    }
-                    $("#"+option.value).prop("checked", localStorage.getItem(option.value)==="true");
+                    $("#"+option.value).prop("checked", false);
                 });
 
-                if (notFound == 3){ // if none of the restOptions are selected, set default to the first option
-                    $("#rest_option1").prop("checked", true);
-                }
-            }
+                $("#rest_option"+rest).prop("checked", true); 
+            } 
+
+            // toggle workOptions radios and other textbox depending on chosen selection
+
+            $("#work_option1").click(function() {
+                $("#work_option2").prop("checked", false);
+                $("#work_option3").prop("checked", false);
+                document.getElementById("workPersonalized").required = false;
+            });
+
+            $("#work_option2").click(function() {
+                $("#work_option1").prop("checked", false);
+                $("#work_option3").prop("checked", false);
+                document.getElementById("workPersonalized").required = false;
+            });
+
+            $("#work_option3").click(function() {
+                $("#work_option1").prop("checked", false);
+                $("#work_option2").prop("checked", false);
+                document.getElementById("workPersonalized").required = true;
+            });
+
+            // toggle restOptions radios and other textbox depending on chosen selection
+
+            $("#rest_option1").click(function() {
+                $("#rest_option2").prop("checked", false);
+                $("#rest_option3").prop("checked", false);
+                document.getElementById("restPersonalized").required = false;
+            });
+
+            $("#rest_option2").click(function() {
+                $("#rest_option1").prop("checked", false);
+                $("#rest_option3").prop("checked", false);
+                document.getElementById("restPersonalized").required = false;
+            });
+
+            $("#rest_option3").click(function() {
+                $("#rest_option1").prop("checked", false);
+                $("#rest_option2").prop("checked", false);
+                document.getElementById("restPersonalized").required = true;
+            });
         });
     </script>
 </body>
