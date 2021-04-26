@@ -114,36 +114,34 @@
 
         $(document).ready(function () {
             if(window.location.href.indexOf("editpomodorotimer") > -1 || window.location.href.indexOf("pomodoro") > -1) {
-                var notSelectedCount = 0;
+                var notFound = 0;
 
                 $('input[name="workOptions"]').each(function(ind, option){
-                    if (localStorage.getItem(option.value)==="false"){
-                        notSelectedCount += 1;
+                    if (localStorage.getItem(option.value)==null){
+                        notFound += 1;
                         console.log("not selected...");
                     }
                     $("#"+option.value).prop("checked", localStorage.getItem(option.value)==="true");
                     // console.log(option); // for testing
                 });
 
-                if (notSelectedCount == 3){ // if none of the workOptions are selected, set default to the first option
+                if (notFound == 3){ // if none of the workOptions are selected, set default to the first option
                     $("#work_option1").prop("checked", true);
-                    console.log("works?1...");
                 }
 
-                notSelectedCount = 0;
+                notFound = 0;
 
                 $('input[name="restOptions"]').each(function(ind, option){
                     if (localStorage.getItem(option.value)==="false"){
-                        notSelectedCount += 1;
+                        notFound += 1;
                         console.log("not selected...");
                     }
                     $("#"+option.value).prop("checked", localStorage.getItem(option.value)==="true");
                     // console.log(option); // for testing
                 });
 
-                if (notSelectedCount == 3){ // if none of the restOptions are selected, set default to the first option
+                if (notFound == 3){ // if none of the restOptions are selected, set default to the first option
                     $("#rest_option1").prop("checked", true);
-                    console.log("works?2...");
                 }
             }
         });
