@@ -1,9 +1,11 @@
+import datetime
 # Import Flask Library
 from flask import Flask, redirect, render_template, request
 app = Flask(__name__, static_folder='assets')
 
 # Globals (these will all be stored in database)
 USERNAME = "Buddy"
+
 workPeriod = 25
 restPeriod = 5
 numReminder = 2 
@@ -17,6 +19,10 @@ restPersonalized = ""
 soundOption = 1
 motionOption = 1
 lightOption = 1
+
+streak_numOfDays = 0
+streak_pomodorosOneDayAmt = 0
+streak_pomodorosOneDayDate = datetime.datetime.now().strftime("%m/%d/%Y")
 
 # Handle Home page
 
@@ -111,7 +117,8 @@ def editPomodoroTimer():
 
 @app.route("/statistic")
 def loadStatistic():
-    return render_template('statistic.html')
+    return render_template('statistic.html', daysStreak=streak_numOfDays, highestStreakNum=streak_pomodorosOneDayAmt, 
+                            highestStreakDate=streak_pomodorosOneDayDate)
 
 # Handle Alert page
 
