@@ -30,30 +30,46 @@ londonBridge = [g[2], a[2], g[2], f[2], e[2], f[2], g[2], d[2],
 LBbeats = [2, 0.5, 1, 1, 1, 1, 2, 1, 1, 2, 1, 1, 2, 2, 0.5, 1,
                 1, 1, 1, 2, 2, 2, 1, 1]
 
+GPIO.setwarnings(False)
+GPIO.setmode(GPIO.BCM)
+SOUNDPIN = 12
+TIMERPIN = 17
+DATA = 11
+STOR = 13
+SHIFT = 15
+NSHIFT = 16
 
 info()
 
 workTime(True)
 breakTime(True)
 
-btnPIN = setupBtnForTimer()
-waitForBtnPress(btnPIN, 10)	# 10 sec
+#btnPIN = setupBtnForTimer()
+#waitForBtnPress(btnPIN, 10)	# 10 sec
+setupBtnForTimer(TIMERPIN)
+waitForBtnPress(TIMERPIN, 10)
 
+setupLED(DATA, STOR, SHIFT, NSHIFT)
 turnOnLED()
 turnOffLED()
+LEDwave(DATA, STOR, SHIFT)
 changeLEDColor()
 sendByte()
 
-buzzPIN = setupSound()
-makeSound(buzzPIN)
+#buzzPIN = setupSound()
+#makeSound(buzzPIN)
+setupSound(SOUNDPIN)
+makeSound(SOUNDPIN)
 sleep(2)
-playMelody(londonBridge, LBbeats, 0.3, buzzPIN)
+#playMelody(londonBridge, LBbeats, 0.3, buzzPIN)
+playMelody(londonBridge, LBbeats, 0.3, SOUNDPIN)
 
 motorTest()
 rightTurn()
 leftTurn()
 
-readDist(0)
+#readDist(0) #0 = channel #need to make sure placing init value is fine
+readDist()
 registerTap()
 buttonPressed()
 

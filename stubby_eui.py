@@ -8,42 +8,44 @@ def info():
 
 ## timers ##
 
-def workTime(testing=False):
+def workTime(testing=False, wDuration=25):
 	print("Start work time!")
 
 	if (testing):			# for testing purposes just wait 0.5s
 		time.sleep(0.5)
 	else:
-		time.sleep(25*60)	# 25min of focused work time
+		time.sleep(wDuration*60)	# 25min of focused work time
 
 	print("Time for a break!")
 
-def breakTime(testing=False):
+def breakTime(testing=False, bDuration=5):
 	print("It's break time!")
 
 	if (testing):			# for testing purposes just wait 0.5s
 		time.sleep(0.5)
 	else:
-		time.sleep(5*60)	# 5 min of break
+		time.sleep(bDuration*60)	# 5 min of break
 
 	print("Break is over")
 
-def setupBtnForTimer():
+def setupBtnForTimer(timerPin): #originally without any params
         print("in setupBtnForTimer")
-        PIN = 17
-        GPIO.setwarnings(False)
-        GPIO.setmode(GPIO.BCM)
-        GPIO.setup(PIN, GPIO.IN)
-        return PIN
+        #PIN = 17
+        #GPIO.setwarnings(False)
+        #GPIO.setmode(GPIO.BCM)         #these commands are in demo.py - will try to take out if possible
+        #GPIO.setup(PIN, GPIO.IN)
+        GPIO.setup(timerPin, GPIO.IN)
+	#return PIN     #originally with all commented commands
 
-def waitForBtnPress(PIN, duration):
+def waitForBtnPress(timerPin, duration):
 	timerRunning = False    # timer is initially not running
 
 	try:
 		print("Waiting for button press to start timer...")
 		print("NOTE: ^C to stop testing waitForBtnPress")
 		while True:
-			btnPressed = GPIO.input(PIN) # 0 is false & 1 is true
+			#btnPressed = GPIO.input(PIN) # 0 is false & 1 is true
+			btnPressed = GPIO.input(timerPin)
 			time.sleep(0.5)
 
                 	# button pressed to end timer
@@ -73,11 +75,48 @@ def waitForBtnPress(PIN, duration):
 
 ## lights ##
 
+def setupLED(DATA, STOR, SHIFT, NSHIFT):
+	GPIO.setwarnings(False)
+	GPIO.setmode(GPIO.BCM)
+	GPIO.setup(DATA, GPIO.OUT)
+	GPIO.setup(STOR, GPIO.OUT)
+	GPIO.setup(SHIFT, GPIO.OUT)
+	GPIO.setup(NSHIFT, GPIO.OUT)
+	GPIO.output(NSHIFT, GPIO.LOW) #clear shift register
+	GPIO.output(NSHIFT, GPIO.HIGH) #don't clear shift register yet
+
 def turnOnLED():
 	print("LEDs turn on")
 
 def turnOffLED():
 	print("LEDs turn off")
+
+def LEDwave(DATA, STOR, SHIFT):
+	try:
+		while True:
+			x=0x01
+			for i in range(0,8):
+				GPIO.output(DATA, GPIO.HIGH)
+				time.sleep(0.1)
+				GPIO.output(SHIFT, GPIO.HIGH)
+				time.sleep(0.1)
+				GPIO.output(SHIFT, GPIO.LOW)
+				GPIO.output(DATA, GPIO.LOW)
+				GPIO.output(STOR, GPIO.HIGH)
+				time.sleep(0.1)
+				GPIO.output(STOR, GPIO.LOW)
+			for i in range(0,8):
+				GPIO.output(DATA, GPIO.LOW)
+				time.sleep(0.1)
+				GPIO.output(SHIFT, GPIO.HIGH)
+				time.sleep(0.1)
+				GPIO.output(SHIFT, GPIO.LOW)
+				GPIO.output(DATA, GPIO.LOW)
+				GPIO.output(STOR, GPIO.HIGH)
+				time.sleep(0.1)
+				GPIO.output(STOR, GPIO.LOW)
+	except KeyboardInterrupt:
+		GPIO.cleanup()
 
 def changeLEDColor():
 	print("LEDs change color")
@@ -87,25 +126,25 @@ def sendByte():
 
 ## sound ##
 
-def setupSound():
+def setupSound(soundPin):
 	print("in setupSound")
-	PIN = 12
+	#PIN = 12
 	GPIO.setwarnings(False)
 	GPIO.setmode(GPIO.BCM)
-	GPIO.setup(PIN, GPIO.OUT)
-	return PIN
+	GPIO.setup(soundPin, GPIO.OUT)
+	#return PIN
 
-def makeSound(PIN):
+def makeSound(soundPin):
 	print("piezo make a sound")
-	pwm = GPIO.PWM(PIN, 276)
+	pwm = GPIO.PWM(soundPin, 276)
 	pwm.start(1)
 	time.sleep(1)
 	pwm.stop()
 
-def playMelody(song, beat, tempo, PIN):
+def playMelody(song, beat, tempo, soundPin):
 	print("piezo plays a song")
 
-	pwm = GPIO.PWM(PIN, 100)
+	pwm = GPIO.PWM(soundPin, 100)
 	pwm.start(50)
 
 	for i in range(0, len(song)):
@@ -119,8 +158,8 @@ def playMelody(song, beat, tempo, PIN):
 
 def motorTest():
 	print("power motors on")
-	GPIO.setmode(GPIO.BCM)
-	GPIO.setwarnings(False)
+	#GPIO.setmode(GPIO.BCM)
+	#GPIO.setwarnings(False)
 
 	in1 = 2
 	in2 = 3
@@ -182,10 +221,10 @@ def readADC(spi, channel):
 	cm = int(round(dist))
 	return cm
 
-def readDist(spiChannel):
+def readDist(spiChannel=0):
 	print("distance read by sensor")
-	GPIO.setwarnings(False)
-	GPIO.setmode(GPIO.BCM)
+	#GPIO.setwarnings(False)
+	#GPIO.setmode(GPIO.BCM)
 	spi = spidev.SpiDev()
 	#spiChannel = 0
 	spi.open(0,spiChannel) # SPI Port 0, Chip Select 0
