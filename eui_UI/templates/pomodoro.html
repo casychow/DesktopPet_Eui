@@ -39,8 +39,8 @@
                             <div class="card-body">
                                 <h4 class="card-title"><small>Configure your pomodoro timer</small></h4>
                                 <div class="form-group">
-                                    <p>Work Period (in minutes)&nbsp;&nbsp;<input type="text" placeholder="{{workPeriod}}" name="newWorkPeriod"></p>
-                                    <p>Rest Period (in minutes)&nbsp; &nbsp;<input type="text" placeholder="{{restPeriod}}" name="newRestPeriod"></p>
+                                    <p>Work Period (in minutes)&nbsp;&nbsp;<input type="number" min=0 placeholder="{{workPeriod}}" name="newWorkPeriod"></p>
+                                    <p>Rest Period (in minutes)&nbsp; &nbsp;<input type="number" min=0 placeholder="{{restPeriod}}" name="newRestPeriod"></p>
                                 </div>
                             </div>
                         </div>
@@ -48,8 +48,8 @@
                             <div class="card-body">
                                 <h4 class="card-title"><small>After each work and rest period...</small></h4>
                                 <div class="form-group">
-                                    <p>How many times should we remind you?&nbsp;<input type="text" placeholder="2"></p>
-                                    <p>How long should we snooze for? (max: 5 min)&nbsp;&nbsp;<input type="text" placeholder="0"></p>
+                                    <p>How many times should we remind you?&nbsp;<input type="number" min=0 placeholder="{{numReminder}}" name="newNumReminder"></p>
+                                    <p>How long should we snooze for? (max: 5 min)&nbsp;&nbsp;<input type="number" min=0 max=5 placeholder="{{numSnooze}}" name="newNumSnooze"></p>
                                 </div>
                             </div>
                         </div>
@@ -63,9 +63,9 @@
                             <div class="card-body">
                                 <h4 class="card-title"><small>At the end of each work period, ask me...</small></h4>
                                 <div class="form-group">
-                                    <div class="form-check"><input class="form-check-input" type="radio" id="formCheck-1" checked=""><label class="form-check-label" for="formCheck-1">Nothing</label></div>
-                                    <div class="form-check"><input class="form-check-input" type="radio" id="formCheck-2"><label class="form-check-label" for="formCheck-2">Have you worked on an important and urgent task?</label></div>
-                                    <div class="form-check"><input class="form-check-input" type="radio" id="formCheck-2"><label class="form-check-label" for="formCheck-2">Other:&nbsp;<input type="text"></label></div>
+                                    <div class="form-check"><input class="form-check-input" type="radio" name="workOptions" id="work_option1" value="work_option1" checked><label class="form-check-label" for="work_option1">Nothing</label></div>
+                                    <div class="form-check"><input class="form-check-input" type="radio" name="workOptions" id="work_option2" value="work_option2"><label class="form-check-label" for="work_option2">Have you worked on an important and urgent task?</label></div>
+                                    <div class="form-check"><input class="form-check-input" type="radio" name="workOptions" id="work_option3" value="work_option3"><label class="form-check-label" for="work_option3">Other:&nbsp;<input type="text" id="workPersonalized" name="workPersonalized" placeholder="{{setWorkPersonalized}}"></label></div>
                                 </div>
                             </div>
                         </div>
@@ -73,9 +73,9 @@
                             <div class="card-body">
                                 <h4 class="card-title"><small>At the end of each rest period, ask me...</small></h4>
                                 <div class="form-group">
-                                    <div class="form-check"><input class="form-check-input" type="radio" id="formCheck-1" checked=""><label class="form-check-label" for="formCheck-1">Nothing</label></div>
-                                    <div class="form-check"><input class="form-check-input" type="radio" id="formCheck-3"><label class="form-check-label" for="formCheck-2">Have you taken a physical break away from your computer?</label></div>
-                                    <div class="form-check"><input class="form-check-input" type="radio" id="formCheck-4"><label class="form-check-label" for="formCheck-2">Other:&nbsp;<input type="text"></label></div>
+                                    <div class="form-check"><input class="form-check-input" type="radio" name="restOptions" id="rest_option1" value="rest_option1" checked><label class="form-check-label" for="rest_option1">Nothing</label></div>
+                                    <div class="form-check"><input class="form-check-input" type="radio" name="restOptions" id="rest_option2" value="rest_option2"><label class="form-check-label" for="rest_option2">Have you taken a physical break away from your computer?</label></div>
+                                    <div class="form-check"><input class="form-check-input" type="radio" name="restOptions" id="rest_option3" value="rest_option3"><label class="form-check-label" for="rest_option3">Other:&nbsp;<input type="text" id="restPersonalized" name="restPersonalized" placeholder="{{setRestPersonalized}}"></label></div>
                                 </div>
                             </div>
                         </div>
@@ -84,7 +84,7 @@
             </div>
             <hr>
             <div role="group" class="btn-group">
-                <button class="btn btn-primary" type="submit" style="margin: 5px;">Save Changes</button>
+                <button class="btn btn-primary" type="submit" style="margin: 5px;" onclick="handleSubmission()">Save Changes</button>
                 <button class="btn btn-link" type="button" style="margin: 5px;" onclick="history.back(-1)">Go Back</button>
             </div>
         </form>
@@ -93,6 +93,38 @@
     <script src="assets/bootstrap/js/bootstrap.min.js"></script>
     <script src="assets/js/chart.min.js"></script>
     <script src="assets/js/bs-init.js"></script>
+    <script> 
+        function updateChecked(idSelector){
+            const options = document.querySelectorAll(idSelector);
+            for (const option of options){
+                localStorage.removeItem(option.value);
+                localStorage.setItem(option.value, option.checked);
+            }
+        }
+
+        function handleSubmission(){
+            if ((document.getElementById("work_option3").checked && document.getElementById('workPersonalized').value === "" && $('#workPersonalized')[0].placeholder == "")
+                || (document.getElementById("rest_option3").checked && document.getElementById('restPersonalized').value === "" && $('#restPersonalized')[0].placeholder == "")){
+                alert("Please try again! (Need to fill out OTHER)");
+            } 
+            updateChecked('input[name="workOptions"]');
+            updateChecked('input[name="restOptions"]');
+        } 
+
+        $(document).ready(function () {
+            if(window.location.href.indexOf("editpomodorotimer") > -1 || window.location.href.indexOf("pomodoro") > -1) {
+                $('input[name="workOptions"]').each(function(ind, option){
+                    $("#"+option.value).prop("checked", localStorage.getItem(option.value)==="true");
+                    console.log(option);
+                });
+
+                $('input[name="restOptions"]').each(function(ind, option){
+                    $("#"+option.value).prop("checked", localStorage.getItem(option.value)==="true");
+                    console.log(option);
+                });
+            }
+        });
+    </script>
 </body>
 
 </html>

@@ -1,11 +1,20 @@
 # Import Flask Library
 from flask import Flask, redirect, render_template, request
-app = Flask(__name__, static_folder='')
+app = Flask(__name__, static_folder='assets')
 
 # Globals
 USERNAME = "Buddy"
 workPeriod = 25
 restPeriod = 5
+numReminder = 2 
+numSnooze = 0
+
+workOption = 1
+restOption = 1
+workPersonalized = ""
+restPersonalized = ""
+
+
 
 # Load pages
 @app.route("/")
@@ -25,17 +34,68 @@ def editName():
 
 @app.route("/pomodoro")
 def loadPomodoro():
-    return render_template('pomodoro.html', workPeriod=workPeriod, restPeriod=restPeriod)
+    return render_template('pomodoro.html', workPeriod=workPeriod, restPeriod=restPeriod, 
+                            numReminder=numReminder, numSnooze=numSnooze, 
+                            setWorkPersonalized=workPersonalized, setRestPersonalized=restPersonalized)
 
 @app.route("/editpomodorotimer", methods=['GET', 'POST'])
 def editPomodoroTimer():
-    global workPeriod
-    global restPeriod
 
-    workPeriod = request.form['newWorkPeriod']
-    restPeriod = request.form['newRestPeriod']
+    ''' Retreive Timing Fields '''
 
-    return render_template('pomodoro.html', workPeriod=workPeriod, restPeriod=restPeriod)
+    newWorkPeriod = request.form['newWorkPeriod']
+    newRestPeriod = request.form['newRestPeriod']
+
+    if (newWorkPeriod != ""):
+        global workPeriod
+        workPeriod = newWorkPeriod
+    if (newRestPeriod != ""):
+        global restPeriod
+        restPeriod = newRestPeriod
+
+    newNumReminder = request.form['newNumReminder']
+    newNumSnooze = request.form['newNumSnooze']
+
+    if (newNumReminder != ""):
+        global numReminder
+        numReminder = newNumReminder
+    if (newNumSnooze != ""):
+        global numSnooze
+        numSnooze = newNumSnooze
+
+    ''' Retreive Accountability Fields '''
+
+    global workPersonalized
+    getOption = request.form['workOptions']
+
+    if (getOption == "work_option1"):
+        workOption = 1
+        workPersonalized = ""
+    elif (getOption == "work_option2"):
+        workOption = 2
+        workPersonalized = ""
+    else:
+        getVal = request.form['workPersonalized']
+        if (getVal != ""):
+            workPersonalized = getVal
+
+    global restPersonalized
+    getOption = request.form['restOptions']
+
+    if (getOption == "rest_option1"):
+        restOption = 1
+        restPersonalized = ""
+    elif (getOption == "rest_option2"):
+        restOption = 2
+        restPersonalized = ""
+    else:
+        getVal = request.form['restPersonalized']
+        if (getVal != ""):
+            restPersonalized = getVal
+
+    return render_template('pomodoro.html', workPeriod=workPeriod, restPeriod=restPeriod, 
+                            numReminder=numReminder, numSnooze=numSnooze, 
+                            setWorkPersonalized=workPersonalized, setRestPersonalized=restPersonalized)
 
 @app.route("/statistic")
 def loadStatistic():
