@@ -63,7 +63,7 @@
                             <div class="card-body">
                                 <h4 class="card-title"><small>At the end of each work period, ask me...</small></h4>
                                 <div class="form-group">
-                                    <div class="form-check"><input class="form-check-input" type="radio" name="workOptions" id="work_option1" value="work_option1" checked="checked"><label class="form-check-label" for="work_option1">Nothing</label></div>
+                                    <div class="form-check"><input class="form-check-input" type="radio" name="workOptions" id="work_option1" value="work_option1"><label class="form-check-label" for="work_option1">Nothing</label></div>
                                     <div class="form-check"><input class="form-check-input" type="radio" name="workOptions" id="work_option2" value="work_option2"><label class="form-check-label" for="work_option2">Have you worked on an important and urgent task?</label></div>
                                     <div class="form-check"><input class="form-check-input" type="radio" name="workOptions" id="work_option3" value="work_option3"><label class="form-check-label" for="work_option3">Other:&nbsp;<input type="text" id="workPersonalized" name="workPersonalized" placeholder="{{setWorkPersonalized}}"></label></div>
                                 </div>
@@ -73,7 +73,7 @@
                             <div class="card-body">
                                 <h4 class="card-title"><small>At the end of each rest period, ask me...</small></h4>
                                 <div class="form-group">
-                                    <div class="form-check"><input class="form-check-input" type="radio" name="restOptions" id="rest_option1" value="rest_option1" checked="checked"><label class="form-check-label" for="rest_option1">Nothing</label></div>
+                                    <div class="form-check"><input class="form-check-input" type="radio" name="restOptions" id="rest_option1" value="rest_option1"><label class="form-check-label" for="rest_option1">Nothing</label></div>
                                     <div class="form-check"><input class="form-check-input" type="radio" name="restOptions" id="rest_option2" value="rest_option2"><label class="form-check-label" for="rest_option2">Have you taken a physical break away from your computer?</label></div>
                                     <div class="form-check"><input class="form-check-input" type="radio" name="restOptions" id="rest_option3" value="rest_option3"><label class="form-check-label" for="rest_option3">Other:&nbsp;<input type="text" id="restPersonalized" name="restPersonalized" placeholder="{{setRestPersonalized}}"></label></div>
                                 </div>
@@ -114,15 +114,33 @@
 
         $(document).ready(function () {
             if(window.location.href.indexOf("editpomodorotimer") > -1 || window.location.href.indexOf("pomodoro") > -1) {
+                var notSelectedCount = 0;
+
                 $('input[name="workOptions"]').each(function(ind, option){
+                    if (localStorage.getItem(option.value)==="false"){
+                        notSelectedCount += 1;
+                    }
                     $("#"+option.value).prop("checked", localStorage.getItem(option.value)==="true");
-                    console.log(option);
+                    // console.log(option); // for testing
                 });
 
+                if (notSelectedCount == 3){ // if none of the workOptions are selected, set default to the first option
+                    $("#work_option1").prop("checked", true);
+                }
+
+                notSelectedCount = 0;
+
                 $('input[name="restOptions"]').each(function(ind, option){
+                    if (localStorage.getItem(option.value)==="false"){
+                        notSelectedCount += 1;
+                    }
                     $("#"+option.value).prop("checked", localStorage.getItem(option.value)==="true");
-                    console.log(option);
+                    // console.log(option); // for testing
                 });
+
+                if (notSelectedCount == 3){ // if none of the restOptions are selected, set default to the first option
+                    $("#rest_option1").prop("checked", true);
+                }
             }
         });
     </script>
