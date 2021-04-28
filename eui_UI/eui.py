@@ -46,7 +46,7 @@ streak_numOfDays = 0
 streak_pomodorosOneDayAmt = 0
 streak_pomodorosOneDayDate = datetime.datetime.now().strftime("%m/%d/%Y")
 
-# Handle Home page
+''' Handle Home page '''
 
 @app.route("/")
 def loadHome():
@@ -66,7 +66,7 @@ def editName():
 
     return render_template('index.html', username=USER_SETTINGS['username'])
 
-# Handle Pomodoro page
+''' Handle Pomodoro page '''
 
 @app.route("/pomodoro")
 def loadPomodoro():
@@ -136,14 +136,14 @@ def editPomodoroTimer():
                             numReminder=USER_SETTINGS['numReminder'], numSnooze=USER_SETTINGS['numSnooze'], 
                             setWorkPersonalized=USER_SETTINGS['workPersonalized'], setRestPersonalized=USER_SETTINGS['restPersonalized'])
 
-# Handle Statistics page
+''' Handle Statistics page '''
 
 @app.route("/statistic")
 def loadStatistic():
     return render_template('statistic.html', daysStreak=streak_numOfDays, highestStreakNum=streak_pomodorosOneDayAmt, 
                             highestStreakDate=streak_pomodorosOneDayDate)
 
-# Handle Alert page
+''' Handle Alert page '''
 
 @app.route("/alert")
 def loadAlert():
@@ -198,7 +198,7 @@ def editAlert():
     return render_template('alert.html', soundOption=USER_SETTINGS['soundOption'], 
                             motionOption=USER_SETTINGS['motionOption'], lightOption=USER_SETTINGS['lightOption'])
 
-# Load Contacts page
+''' Load Contacts page '''
 
 @app.route("/contact_us")
 def loadContactUs():
