@@ -1,6 +1,8 @@
 import RPi.GPIO as GPIO
 import time
 import spidev
+import Adafruit_SSD1306
+from PIL import Image
 
 def info():
 	'''Prints a basic library description'''
@@ -29,12 +31,12 @@ def breakTime(testing=False, bDuration=5):
 	print("Break is over")
 
 def setupBtnForTimer(timerPin): #originally without any params
-        print("in setupBtnForTimer")
-        #PIN = 17
-        #GPIO.setwarnings(False)
-        #GPIO.setmode(GPIO.BCM)         #these commands are in demo.py - will try to take out if possible
-        #GPIO.setup(PIN, GPIO.IN)
-        GPIO.setup(timerPin, GPIO.IN)
+	print("in setupBtnForTimer")
+	#PIN = 17
+	#GPIO.setwarnings(False)
+	GPIO.setmode(GPIO.BCM)         #these commands are in demo.py - will try to take out if possible
+	#GPIO.setup(PIN, GPIO.IN)
+	GPIO.setup(timerPin, GPIO.IN)
 	#return PIN     #originally with all commented commands
 
 def waitForBtnPress(timerPin, duration):
@@ -76,7 +78,7 @@ def waitForBtnPress(timerPin, duration):
 ## lights ##
 
 def setupLED(DATA, STOR, SHIFT, NSHIFT):
-	GPIO.setwarnings(False)
+	#GPIO.setwarnings(False)
 	GPIO.setmode(GPIO.BCM)
 	GPIO.setup(DATA, GPIO.OUT)
 	GPIO.setup(STOR, GPIO.OUT)
@@ -93,6 +95,7 @@ def turnOffLED():
 
 def LEDwave(DATA, STOR, SHIFT):
 	try:
+		print("performing LED wave now. Press ^C to stop")
 		while True:
 			x=0x01
 			for i in range(0,8):
@@ -129,7 +132,7 @@ def sendByte():
 def setupSound(soundPin):
 	print("in setupSound")
 	#PIN = 12
-	GPIO.setwarnings(False)
+	#GPIO.setwarnings(False)
 	GPIO.setmode(GPIO.BCM)
 	GPIO.setup(soundPin, GPIO.OUT)
 	#return PIN
@@ -209,7 +212,7 @@ def leftTurn():
 
 ## sensors ##
 
-def readADC(spi, channel):
+def readADC(spi, channel=0):
 	if ((channel > 3) or (channel < 0)):
 		return -1
 	reply = spi.xfer2([1, (8 + channel) << 4, 0])
@@ -221,19 +224,18 @@ def readADC(spi, channel):
 	cm = int(round(dist))
 	return cm
 
-def readDist(spiChannel=0):
+def readDist(spiChannel):
 	print("distance read by sensor")
 	#GPIO.setwarnings(False)
 	#GPIO.setmode(GPIO.BCM)
 	spi = spidev.SpiDev()
-	#spiChannel = 0
-	spi.open(0,spiChannel) # SPI Port 0, Chip Select 0
+	spi.open(0, spiChannel) # SPI Port 0, Chip Select 0
 	spi.max_speed_hz = 7629
 
 	try:
 		while True:
 			print("\tNOTE: ^C to stop testing readDist")
-			print("\tdistance in cm:", readADC(spi, spiChannel))
+			print("\tdistance in cm:", readADC(spi))
 			print()
 			time.sleep(1)
 	except KeyboardInterrupt:
@@ -249,13 +251,47 @@ def buttonPressed():
 ## display ##
 
 def displayOn():
-	print("display turns on")
+	print("currently displaying happycat image")
+	RST = 24
+	disp = Adafruit_SSD1306.SSD1306_128_64(rst=RST)
+	disp.begin()
+	disp.clear()
+	disp.display()
+	# Load image based on OLED display height.  Note that image is converted to 1 bit color.
+	if disp.height == 64:
+		image = Image.open('/home/pi/DesktopPet_Eui/Adafruit_Python_SSD1306/examples/happycat_oled_64.ppm').convert('1')
+	else:
+		image = Image.open('/home/pi/DesktopPet_Eui/Adafruit_Python_SSD1306/examples/happycat_oled_32.ppm').convert('1')
+
+	# Display image.
+	disp.image(image)
+	disp.display()
 
 def displayOff():
-	print("display turns off")
+	print("display will turn off in one second")
+	RST = 24
+	disp = Adafruit_SSD1306.SSD1306_128_64(rst=RST)
+	time.sleep(1)
+	disp.clear()
+	disp.display()
+	print("display has turned off")
 
 def displayImage():
-	print("displays an image")
+	print("displaying other image")
+	RST = 24
+	disp = Adafruit_SSD1306.SSD1306_128_64(rst=RST)
+	disp.clear()
+	disp.display()
+	'''
+	if disp.height == 64:
+		image = Image.open('/home/pi/DesktopPet_Eui/Adafruit_Python_SSD1306/examples/happycat_oled_64.ppm').convert('1')
+	else:
+		image = Image.open('/home/pi/DesktopPet_Eui/Adafruit_Python_SSD1306/examples/happycat_oled_32.ppm').convert('1')
+
+	# Display image.
+	#disp.image(image)
+	'''
+	disp.display()
 
 def displayText():
-	print("displays text")
+	print("displays text - still need to configure")

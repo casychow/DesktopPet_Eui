@@ -44,8 +44,6 @@ info()
 workTime(True)
 breakTime(True)
 
-#btnPIN = setupBtnForTimer()
-#waitForBtnPress(btnPIN, 10)	# 10 sec
 setupBtnForTimer(TIMERPIN)
 waitForBtnPress(TIMERPIN, 10)
 
@@ -56,20 +54,16 @@ LEDwave(DATA, STOR, SHIFT)
 changeLEDColor()
 sendByte()
 
-#buzzPIN = setupSound()
-#makeSound(buzzPIN)
 setupSound(SOUNDPIN)
 makeSound(SOUNDPIN)
 sleep(2)
-#playMelody(londonBridge, LBbeats, 0.3, buzzPIN)
 playMelody(londonBridge, LBbeats, 0.3, SOUNDPIN)
 
 motorTest()
 rightTurn()
 leftTurn()
 
-#readDist(0) #0 = channel #need to make sure placing init value is fine
-readDist()
+readDist(0)
 registerTap()
 buttonPressed()
 
@@ -77,3 +71,5 @@ displayOn()
 displayOff()
 displayImage()
 displayText()
+
+GPIO.cleanup()
