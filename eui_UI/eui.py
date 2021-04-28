@@ -1,11 +1,17 @@
-import datetime
-import yaml     # for storing user information
+''' NOTES (for database and user settings usage)
+### Database format ###
 
-# Import Flask Library
-from flask import Flask, redirect, render_template, request
-app = Flask(__name__, static_folder='assets')
+CREATE TABLE PomodoroStats(
+    Date TEXT PRIMARY KEY NOT NULL,     # enter as daytime('now') to add current daytime
+    Weekday TEXT NOT NULL,              # day of the week on which task is completed
+    Duration REAL NOT NULL,             # amount of time spent on task
+    Completed_Task INT NOT NULL,        # 0 = Pomodoro & 1 = break
+    Question_Answered INT NOT NULL      # 0 = No question & 1 = answered & 2 = not answered 
+);
 
-# Default user settings (as stored in "usersettings_default.p")
+### Configuration format ###
+
+# Default user settings (as stored in "default_usersettings.yaml")
 DEFAULT_USER_SETTINGS = { "username" : "Buddy",
                             "workPeriod" : 25,    # in minutes
                             "restPeriod" : 5,     # in minutes
@@ -19,7 +25,16 @@ DEFAULT_USER_SETTINGS = { "username" : "Buddy",
                             "motionOption" : 1,
                             "lightOption" : 1
                         }
-                        
+'''
+
+import datetime
+import yaml     # for storing user configuration settings
+import sqlite3  # for storing user's pomodoro usage statistics
+
+# Import Flask Library
+from flask import Flask, redirect, render_template, request
+app = Flask(__name__, static_folder='assets')
+
 # Grab stored user settings
 with open('usersettings.yaml') as file:
     # The FullLoader parameter handles the conversion from YAML
