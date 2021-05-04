@@ -34,9 +34,9 @@ GPIO.setwarnings(False)
 GPIO.setmode(GPIO.BCM)
 SOUNDPIN = 12
 TIMERPIN = 17
-DATA = 11
+DATA = 21 #previously 11
 STOR = 13
-SHIFT = 15
+SHIFT = 18 #previously 15
 NSHIFT = 16
 
 info()

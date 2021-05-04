@@ -32,12 +32,8 @@ def breakTime(testing=False, bDuration=5):
 
 def setupBtnForTimer(timerPin): #originally without any params
 	print("in setupBtnForTimer")
-	#PIN = 17
-	#GPIO.setwarnings(False)
-	GPIO.setmode(GPIO.BCM)         #these commands are in demo.py - will try to take out if possible
-	#GPIO.setup(PIN, GPIO.IN)
+	GPIO.setmode(GPIO.BCM)
 	GPIO.setup(timerPin, GPIO.IN)
-	#return PIN     #originally with all commented commands
 
 def waitForBtnPress(timerPin, duration):
 	timerRunning = False    # timer is initially not running
@@ -46,10 +42,8 @@ def waitForBtnPress(timerPin, duration):
 		print("Waiting for button press to start timer...")
 		print("NOTE: ^C to stop testing waitForBtnPress")
 		while True:
-			#btnPressed = GPIO.input(PIN) # 0 is false & 1 is true
-			btnPressed = GPIO.input(timerPin)
+			btnPressed = GPIO.input(timerPin) # 0 is false & 1 is true
 			time.sleep(0.5)
-
                 	# button pressed to end timer
 			if (btnPressed and timerRunning):
 				print("Timer forced to end")
@@ -131,11 +125,8 @@ def sendByte():
 
 def setupSound(soundPin):
 	print("in setupSound")
-	#PIN = 12
-	#GPIO.setwarnings(False)
 	GPIO.setmode(GPIO.BCM)
 	GPIO.setup(soundPin, GPIO.OUT)
-	#return PIN
 
 def makeSound(soundPin):
 	print("piezo make a sound")
