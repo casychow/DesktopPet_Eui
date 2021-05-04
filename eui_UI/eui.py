@@ -4,7 +4,7 @@
 CREATE TABLE PomodoroStats(
     Date TEXT PRIMARY KEY NOT NULL,     # enter as daytime('now') to add current daytime
     Weekday TEXT NOT NULL,              # day of the week on which task is completed
-    Duration REAL NOT NULL,             # amount of time spent on task
+    Duration REAL NOT NULL,             # amount of time spent on task (in mins)
     Completed_Task INT NOT NULL,        # 0 = Pomodoro & 1 = break
     Question_Answered INT NOT NULL      # 0 = No question & 1 = answered & 2 = not answered 
 );
@@ -41,10 +41,10 @@ with open('usersettings.yaml') as file:
     # scalar values to Python the dictionary format
     USER_SETTINGS = yaml.load(file, Loader=yaml.FullLoader)
 
-# Globals
-streak_numOfDays = 0
-streak_pomodorosOneDayAmt = 0
-streak_pomodorosOneDayDate = datetime.datetime.now().strftime("%m/%d/%Y")
+# database file with pomodoro usage statistics
+EUI_STATS_FILE = "sample_eui_stats.db"      # using sample/toy database file
+# EUI_STATS_FILE = "eui_stats.db"             # actual database file
+
 
 ''' Handle Home page '''
 
@@ -138,10 +138,56 @@ def editPomodoroTimer():
 
 ''' Handle Statistics page '''
 
+# Query for and return the number of pomodoros completed in the day along with query results
+def countPomodoros(conn, weekday):
+    cur = conn.cursor()
+    cur.execute("SELECT * FROM pomodoroStats WHERE Weekday='" + weekday + "'")
+    query = cur.fetchall()
+
+    return len(query)//2, query    # one pomodoro = one work period + one break period
+
 @app.route("/statistic")
 def loadStatistic():
-    return render_template('statistic.html', daysStreak=streak_numOfDays, highestStreakNum=streak_pomodorosOneDayAmt, 
-                            highestStreakDate=streak_pomodorosOneDayDate)
+    data = {'mon' : 0, 'tue' : 0, 'wed' : 0, 'thu' : 0, 'fri' : 0, 'sat' : 0, 'sun' : 0,
+            'streak_numOfDays' : 0,
+            'streak_pomodorosOneDayAmt' : 0,
+            'streak_pomodorosOneDayDate' : ""}
+    conn = None 
+
+    try:
+        conn = sqlite3.connect(EUI_STATS_FILE)
+    except Error as e:
+        print(e)
+
+    daysInRow = 0
+
+    for key in data:
+        # only evaluate the days of the week
+        if (key == 'streak_numOfDays' or key == 'streak_pomodorosOneDayAmt' or 
+            key == 'streak_pomodorosOneDayDate'):
+            continue
+
+        data[key], query = countPomodoros(conn, key)
+
+        # check for and update the highest pomodoro streak amount and date
+        if (data[key] > data['streak_pomodorosOneDayAmt']):
+            data['streak_pomodorosOneDayAmt'] = data[key]
+            dateTime = query[0][0].split(" ")
+            data['streak_pomodorosOneDayDate'] = dateTime[0]
+
+        # check and update max number of days that Eui has been used in a row this week
+        if (daysInRow !=0 and data[key] == 0):
+            if (daysInRow > data['streak_numOfDays']):
+                data['streak_numOfDays'] = daysInRow
+            daysInRow = 0
+        else:
+            daysInRow += 1
+
+    return render_template('statistic.html', daysStreak=data['streak_numOfDays'], 
+                            highestStreakNum=data['streak_pomodorosOneDayAmt'], 
+                            highestStreakDate=data['streak_pomodorosOneDayDate'], 
+                            mon=data['mon'], tue=data['tue'], wed=data['wed'], thu=data['thu'], 
+                            fri=data['fri'], sat=data['sat'], sun=data['sun'])
 
 ''' Handle Alert page '''
 
