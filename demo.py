@@ -34,10 +34,20 @@ GPIO.setwarnings(False)
 GPIO.setmode(GPIO.BCM)
 SOUNDPIN = 12
 TIMERPIN = 17
-DATA = 21 #previously 11
+
+#LIGHTS
+DATA = 21
 STOR = 13
-SHIFT = 18 #previously 15
+SHIFT = 18
 NSHIFT = 16
+
+#MOTORS
+IN1 = 27 #2
+IN2 = 22 #3
+EN1 = 4
+IN3 = 1
+IN4 = 0
+EN2 = 5
 
 info()
 
@@ -59,13 +69,16 @@ makeSound(SOUNDPIN)
 sleep(2)
 playMelody(londonBridge, LBbeats, 0.3, SOUNDPIN)
 
-motorTest()
+motorTest(IN1, IN2, EN1, IN3, IN4, EN2)
 rightTurn()
 leftTurn()
 
 readDist(0)
-registerTap()
-buttonPressed()
+#registerTap()
+#probably won't get to this - used to answer questions on the OLED display
+
+#buttonPressed()
+#probably won't get to this - mute sounds
 
 displayOn()
 displayOff()

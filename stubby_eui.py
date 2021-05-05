@@ -150,48 +150,48 @@ def playMelody(song, beat, tempo, soundPin):
 
 ## movements ##
 
-def motorTest():
+def motorTest(IN1, IN2, EN1, IN3, IN4, EN2):
 	print("power motors on")
 	#GPIO.setmode(GPIO.BCM)
 	#GPIO.setwarnings(False)
 
-	in1 = 2
-	in2 = 3
-	en1 = 4    # Enable Pin for wheel 1
-	in3 = 1    # Input Pin
-	in4 = 0    # Input Pin
-	en2 = 5    # Enable Pin for wheel 2
+	#in1 = 2
+	#in2 = 3
+	#en1 = 4    # Enable Pin for wheel 1
+	#in3 = 1    # Input Pin
+	#in4 = 0    # Input Pin
+	#en2 = 5    # Enable Pin for wheel 2
 
-	GPIO.setup(in1, GPIO.OUT)
-	GPIO.setup(in2, GPIO.OUT)
-	GPIO.setup(en1, GPIO.OUT)
-	GPIO.setup(in3, GPIO.OUT)
-	GPIO.setup(in4, GPIO.OUT)
-	GPIO.setup(en2, GPIO.OUT)
+	GPIO.setup(IN1, GPIO.OUT)
+	GPIO.setup(IN2, GPIO.OUT)
+	GPIO.setup(EN1, GPIO.OUT)
+	GPIO.setup(IN3, GPIO.OUT)
+	GPIO.setup(IN4, GPIO.OUT)
+	GPIO.setup(EN2, GPIO.OUT)
 
 	print("\tFORWARD MOTION")
-	GPIO.output(in1, GPIO.HIGH)
-	GPIO.output(in2, GPIO.LOW)
-	GPIO.output(en1, GPIO.HIGH)
-	GPIO.output(in3, GPIO.HIGH)
-	GPIO.output(in4, GPIO.LOW)
-	GPIO.output(en2, GPIO.HIGH)
+	GPIO.output(IN1, GPIO.HIGH)
+	GPIO.output(IN2, GPIO.LOW)
+	GPIO.output(EN1, GPIO.HIGH)
+	GPIO.output(IN3, GPIO.HIGH)
+	GPIO.output(IN4, GPIO.LOW)
+	GPIO.output(EN2, GPIO.HIGH)
 
 	time.sleep(3)
 
 	print("\tBACKWARD MOTION")
-	GPIO.output(in1, GPIO.LOW)
-	GPIO.output(in2, GPIO.HIGH)
-	GPIO.output(en1, GPIO.HIGH)
-	GPIO.output(in3, GPIO.LOW)
-	GPIO.output(in4, GPIO.HIGH)
-	GPIO.output(en2, GPIO.HIGH)
+	GPIO.output(IN1, GPIO.LOW)
+	GPIO.output(IN2, GPIO.HIGH)
+	GPIO.output(EN1, GPIO.HIGH)
+	GPIO.output(IN3, GPIO.LOW)
+	GPIO.output(IN4, GPIO.HIGH)
+	GPIO.output(EN2, GPIO.HIGH)
 
 	time.sleep(3)
 
 	print("\tSTOP")
-	GPIO.output(en1, GPIO.LOW)
-	GPIO.output(en2, GPIO.LOW)
+	GPIO.output(EN1, GPIO.LOW)
+	GPIO.output(EN2, GPIO.LOW)
 
 	GPIO.cleanup()
 
