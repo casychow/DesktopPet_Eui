@@ -49,6 +49,9 @@ IN3 = 1
 IN4 = 0
 EN2 = 5
 
+#DISPLAY
+text = "cassandra was here"
+
 info()
 
 workTime(True)
@@ -83,6 +86,6 @@ readDist(0)
 displayOn()
 displayOff()
 displayImage()
-displayText()
+displayText(text)
 
 GPIO.cleanup()

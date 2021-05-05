@@ -152,15 +152,6 @@ def playMelody(song, beat, tempo, soundPin):
 
 def motorTest(IN1, IN2, EN1, IN3, IN4, EN2):
 	print("power motors on")
-	#GPIO.setmode(GPIO.BCM)
-	#GPIO.setwarnings(False)
-
-	#in1 = 2
-	#in2 = 3
-	#en1 = 4    # Enable Pin for wheel 1
-	#in3 = 1    # Input Pin
-	#in4 = 0    # Input Pin
-	#en2 = 5    # Enable Pin for wheel 2
 
 	GPIO.setup(IN1, GPIO.OUT)
 	GPIO.setup(IN2, GPIO.OUT)
@@ -217,8 +208,6 @@ def readADC(spi, channel=0):
 
 def readDist(spiChannel):
 	print("distance read by sensor")
-	#GPIO.setwarnings(False)
-	#GPIO.setmode(GPIO.BCM)
 	spi = spidev.SpiDev()
 	spi.open(0, spiChannel) # SPI Port 0, Chip Select 0
 	spi.max_speed_hz = 7629
@@ -284,5 +273,6 @@ def displayImage():
 	'''
 	disp.display()
 
-def displayText():
-	print("displays text - still need to configure")
+def displayText(text):
+	print("displaying text")
+	#
