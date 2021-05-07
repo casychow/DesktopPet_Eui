@@ -23,7 +23,8 @@ DEFAULT_USER_SETTINGS = { "username" : "Buddy",
                             "restPersonalized" : "",
                             "soundOption" : 1,
                             "motionOption" : 1,
-                            "lightOption" : 1
+                            "lightOption" : 1,
+                            "lastUsedDay": ['', '']     # (weekday, date)
                         }
 '''
 
@@ -35,8 +36,10 @@ import sqlite3  # for storing user's pomodoro usage statistics
 from flask import Flask, redirect, render_template, request
 app = Flask(__name__, static_folder='assets')
 
+USER_INFO_FILE = 'usersettings.yaml'
+
 # Grab stored user settings
-with open('usersettings.yaml') as file:
+with open(USER_INFO_FILE) as file:
     # The FullLoader parameter handles the conversion from YAML
     # scalar values to Python the dictionary format
     USER_SETTINGS = yaml.load(file, Loader=yaml.FullLoader)
@@ -61,7 +64,7 @@ def editName():
         USER_SETTINGS['username'] = username
 
         # update yaml data
-        with open('usersettings.yaml', 'w') as file:
+        with open(USER_INFO_FILE, 'w') as file:
             yaml.dump(USER_SETTINGS, file)
 
     return render_template('index.html', username=USER_SETTINGS['username'])
@@ -128,7 +131,7 @@ def editPomodoroTimer():
             USER_SETTINGS['restPersonalized'] = getVal
 
     # update yaml data
-    with open('usersettings.yaml', 'w') as file:
+    with open(USER_INFO_FILE, 'w') as file:
         yaml.dump(USER_SETTINGS, file)
 
     return render_template('pomodoro.html', workOption=USER_SETTINGS['workOption'], restOption=USER_SETTINGS['restOption'], 
@@ -238,7 +241,7 @@ def editAlert():
         USER_SETTINGS['lightOption'] = 5
 
     # update yaml data
-    with open('usersettings.yaml', 'w') as file:
+    with open(USER_INFO_FILE, 'w') as file:
         yaml.dump(USER_SETTINGS, file)
 
     return render_template('alert.html', soundOption=USER_SETTINGS['soundOption'], 

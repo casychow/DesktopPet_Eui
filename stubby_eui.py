@@ -69,7 +69,7 @@ def waitForBtnPress(timerPin, duration):
 		GPIO.cleanup()
 		time.sleep(1)
 
-## lights ##
+# lights ##
 
 def setupLED(DATA, STOR, SHIFT, NSHIFT):
 	#GPIO.setwarnings(False)
@@ -274,5 +274,5 @@ def displayImage():
 	disp.display()
 
 def displayText(text):
-	print("displaying text")
+	print("displaying text on OLED:\n" + text)
 	#
