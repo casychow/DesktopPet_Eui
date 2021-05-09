@@ -69,7 +69,7 @@ def waitForBtnPress(timerPin, duration):
 		GPIO.cleanup()
 		time.sleep(1)
 
-# lights ##
+## lights ##
 
 def setupLED(DATA, STOR, SHIFT, NSHIFT):
 	#GPIO.setwarnings(False)
@@ -149,6 +149,14 @@ def playMelody(song, beat, tempo, soundPin):
 	pwm.stop()
 
 ## movements ##
+
+def setupMotors(IN1, IN2, EN1, IN3, IN4, EN2):
+	GPIO.setup(IN1, GPIO.OUT)
+	GPIO.setup(IN2, GPIO.OUT)
+	GPIO.setup(EN1, GPIO.OUT)
+	GPIO.setup(IN3, GPIO.OUT)
+	GPIO.setup(IN4, GPIO.OUT)
+	GPIO.setup(EN2, GPIO.OUT)
 
 def motorTest(IN1, IN2, EN1, IN3, IN4, EN2):
 	print("power motors on")
