@@ -48,18 +48,13 @@ def waitForBtnPress(timerPin, duration):
 		while True:
 			btnPressed = GPIO.input(timerPin) # 0 is false & 1 is true
 			time.sleep(0.5)
-<<<<<<< HEAD
                 # button pressed to end timer
->>>>>>> b2a9456abe1a5d637841e816ac850b8b5b306e2b
 			if (btnPressed and timerRunning):
 				print("Timer forced to end")
 				timerRunning = False
 				print("Waiting for button press to start timer...")
 				continue
-
-<<<<<<< HEAD
                 # button pressed to start timer
->>>>>>> b2a9456abe1a5d637841e816ac850b8b5b306e2b
 			if (btnPressed and not timerRunning):
 				print("Timer starts")
 				start = time.time()
@@ -80,8 +75,6 @@ def waitForBtnPress(timerPin, duration):
 ## lights ##
 
 def setupLED(DATA, STOR, SHIFT, NSHIFT):
-	#GPIO.setwarnings(False)
-	#print("in setupLED")
 	GPIO.setmode(GPIO.BCM)
 	GPIO.setup(DATA, GPIO.OUT)
 	GPIO.setup(STOR, GPIO.OUT)
@@ -92,30 +85,28 @@ def setupLED(DATA, STOR, SHIFT, NSHIFT):
 
 def turnOnLED(DATA=21, STOR=13, SHIFT=18):
 	print("LEDs turn on")
-	#sendByte(0xFF)
 	for i in range(0,8):
 		GPIO.output(DATA, GPIO.HIGH)
-		time.sleep(0.1)
+		#time.sleep(0.1)
 		GPIO.output(SHIFT, GPIO.HIGH)
-		time.sleep(0.1)
+		#time.sleep(0.1)
 		GPIO.output(SHIFT, GPIO.LOW)
 		GPIO.output(DATA, GPIO.LOW)
 		GPIO.output(STOR, GPIO.HIGH)
-		time.sleep(0.1)
+		#time.sleep(0.1)
 		GPIO.output(STOR, GPIO.LOW)
 
 def turnOffLED(DATA=21, STOR=13, SHIFT=18):
 	print("LEDs turn off")
-	#sendByte(0x00)
-	for i in range(0,8):
+	for i in range(0,9):
 		GPIO.output(DATA, GPIO.LOW)
-		time.sleep(0.1)
+		#time.sleep(0.1)
 		GPIO.output(SHIFT, GPIO.HIGH)
-		time.sleep(0.1)
+		#time.sleep(0.1)
 		GPIO.output(SHIFT, GPIO.LOW)
 		GPIO.output(DATA, GPIO.LOW)
 		GPIO.output(STOR, GPIO.HIGH)
-		time.sleep(0.1)
+		#time.sleep(0.1)
 		GPIO.output(STOR, GPIO.LOW)
 
 def LEDwave(DATA=21, STOR=13, SHIFT=18):
@@ -123,6 +114,7 @@ def LEDwave(DATA=21, STOR=13, SHIFT=18):
 		print("performing LED wave now. Press ^C to stop")
 		while True:
 			for i in range(0,8):
+				#send one on
 				GPIO.output(DATA, GPIO.HIGH)
 				time.sleep(0.1)
 				GPIO.output(SHIFT, GPIO.HIGH)
@@ -132,7 +124,7 @@ def LEDwave(DATA=21, STOR=13, SHIFT=18):
 				GPIO.output(STOR, GPIO.HIGH)
 				time.sleep(0.1)
 				GPIO.output(STOR, GPIO.LOW)
-			#for i in range(0,8):
+				#send one off
 				GPIO.output(DATA, GPIO.LOW)
 				time.sleep(0.1)
 				GPIO.output(SHIFT, GPIO.HIGH)
@@ -143,7 +135,8 @@ def LEDwave(DATA=21, STOR=13, SHIFT=18):
 				time.sleep(0.1)
 				GPIO.output(STOR, GPIO.LOW)
 	except KeyboardInterrupt:
-		GPIO.cleanup()
+		turnOffLED()
+		time.sleep(0.1)
 
 def changeLEDColor():
 	print("LEDs change color")
@@ -244,33 +237,13 @@ def motorTest(IN1, IN2, EN1, IN3, IN4, EN2):
 	GPIO.setup(IN4, GPIO.OUT)
 	GPIO.setup(EN2, GPIO.OUT)
 
-	#print("\tFORWARD MOTION")
-	#GPIO.output(IN1, GPIO.HIGH)
-	#GPIO.output(IN2, GPIO.LOW)
-	#GPIO.output(EN1, GPIO.HIGH)
-	#GPIO.output(IN3, GPIO.HIGH)
-	#GPIO.output(IN4, GPIO.LOW)
-	#GPIO.output(EN2, GPIO.HIGH)
-
 	forward(IN1, IN2, EN1, IN3, IN4, EN2)
 	time.sleep(2)
 
-	#print("\tBACKWARD MOTION")
-	#GPIO.output(IN1, GPIO.LOW)
-	#GPIO.output(IN2, GPIO.HIGH)
-	#GPIO.output(EN1, GPIO.HIGH)
-	#GPIO.output(IN3, GPIO.LOW)
-	#GPIO.output(IN4, GPIO.HIGH)
-	#GPIO.output(EN2, GPIO.HIGH)
 	backward(IN1, IN2, EN1, IN3, IN4, EN2)
-
 	time.sleep(2)
 
-	#print("\tSTOP")
-	#GPIO.output(EN1, GPIO.LOW)
-	#GPIO.output(EN2, GPIO.LOW)
 	stopMotors(IN1, IN2, EN1, IN3, IN4, EN2)
-	#GPIO.cleanup()
 
 def rightTurn(IN1, IN2, EN1, IN3, IN4, EN2):
 	print("make right turn")
@@ -332,10 +305,34 @@ def setupDisplay(pin):
 	return Adafruit_SSD1306.SSD1306_128_64(rst=pin)
 
 def displayOn(disp):
-	print("currently displaying happycat image")
-	#RST = 24
-	#disp = Adafruit_SSD1306.SSD1306_128_64(rst=RST)
+	print("display turn on - full white screen")
 	disp.begin()
+	disp.clear()
+	disp.display()
+	width = disp.width
+	height = disp.height
+	image = Image.new('1', (width, height))
+	draw = ImageDraw.Draw(image)
+	draw.rectangle((0,0,width,height), outline=0, fill=255)
+	'''
+	if disp.height == 64:
+		image = Image.open('/home/pi/DesktopPet_Eui/Adafruit_Python_SSD1306/examples/happycat_oled_64.ppm').convert('1')
+	else:
+		image = Image.open('/home/pi/DesktopPet_Eui/Adafruit_Python_SSD1306/examples/happycat_oled_32.ppm').convert('1')
+	'''
+	# Display image.
+	disp.image(image)
+	disp.display()
+
+def displayOff(disp):
+	print("display will turn off in one second")
+	time.sleep(1)
+	disp.clear()
+	disp.display()
+	print("display has turned off")
+
+def displayImage(disp):
+	print("displaying other image")
 	disp.clear()
 	disp.display()
 	# Load image based on OLED display height.  Note that image is converted to 1 bit color.
@@ -346,32 +343,6 @@ def displayOn(disp):
 
 	# Display image.
 	disp.image(image)
-	disp.display()
-
-def displayOff(disp):
-	print("display will turn off in one second")
-	#RST = 24
-	#disp = Adafruit_SSD1306.SSD1306_128_64(rst=RST)
-	time.sleep(1)
-	disp.clear()
-	disp.display()
-	print("display has turned off")
-
-def displayImage(disp):
-	print("displaying other image")
-	#RST = 24
-	#disp = Adafruit_SSD1306.SSD1306_128_64(rst=RST)
-	disp.clear()
-	disp.display()
-	'''
-	if disp.height == 64:
-		image = Image.open('/home/pi/DesktopPet_Eui/Adafruit_Python_SSD1306/examples/happycat_oled_64.ppm').convert('1')
-	else:
-		image = Image.open('/home/pi/DesktopPet_Eui/Adafruit_Python_SSD1306/examples/happycat_oled_32.ppm').convert('1')
-
-	# Display image.
-	#disp.image(image)
-	'''
 	disp.display()
 
 def editText(text):

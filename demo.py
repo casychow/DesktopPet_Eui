@@ -53,6 +53,7 @@ EN2 = 5
 RST = 26 #24
 text = "cassandra was here - bleep, blap, bloop :P"
 
+
 info()
 
 workTime(True)
@@ -64,8 +65,11 @@ waitForBtnPress(TIMERPIN, 10)
 setupLED(DATA, STOR, SHIFT, NSHIFT)
 sendByte()
 turnOffLED()
+sleep(1)
 turnOnLED()
+sleep(1)
 turnOffLED()
+sleep(1)
 LEDwave()
 
 setupSound(SOUNDPIN)
@@ -90,8 +94,10 @@ readDist(0)
 
 disp = setupDisplay(RST)
 displayOn(disp)
-displayOff(disp)
+sleep(2)
 displayImage(disp)
+sleep(1)
 displayText(disp, text)
+displayOff(disp)
 
 GPIO.cleanup()
