@@ -73,6 +73,7 @@ def waitForBtnPress(timerPin, duration):
 
 def setupLED(DATA, STOR, SHIFT, NSHIFT):
 	#GPIO.setwarnings(False)
+	#print("in setupLED")
 	GPIO.setmode(GPIO.BCM)
 	GPIO.setup(DATA, GPIO.OUT)
 	GPIO.setup(STOR, GPIO.OUT)
@@ -81,17 +82,38 @@ def setupLED(DATA, STOR, SHIFT, NSHIFT):
 	GPIO.output(NSHIFT, GPIO.LOW) #clear shift register
 	GPIO.output(NSHIFT, GPIO.HIGH) #don't clear shift register yet
 
-def turnOnLED():
+def turnOnLED(DATA=21, STOR=13, SHIFT=18):
 	print("LEDs turn on")
+	#sendByte(0xFF)
+	for i in range(0,8):
+		GPIO.output(DATA, GPIO.HIGH)
+		time.sleep(0.1)
+		GPIO.output(SHIFT, GPIO.HIGH)
+		time.sleep(0.1)
+		GPIO.output(SHIFT, GPIO.LOW)
+		GPIO.output(DATA, GPIO.LOW)
+		GPIO.output(STOR, GPIO.HIGH)
+		time.sleep(0.1)
+		GPIO.output(STOR, GPIO.LOW)
 
-def turnOffLED():
+def turnOffLED(DATA=21, STOR=13, SHIFT=18):
 	print("LEDs turn off")
+	#sendByte(0x00)
+	for i in range(0,8):
+		GPIO.output(DATA, GPIO.LOW)
+		time.sleep(0.1)
+		GPIO.output(SHIFT, GPIO.HIGH)
+		time.sleep(0.1)
+		GPIO.output(SHIFT, GPIO.LOW)
+		GPIO.output(DATA, GPIO.LOW)
+		GPIO.output(STOR, GPIO.HIGH)
+		time.sleep(0.1)
+		GPIO.output(STOR, GPIO.LOW)
 
-def LEDwave(DATA, STOR, SHIFT):
+def LEDwave(DATA=21, STOR=13, SHIFT=18):
 	try:
 		print("performing LED wave now. Press ^C to stop")
 		while True:
-			x=0x01
 			for i in range(0,8):
 				GPIO.output(DATA, GPIO.HIGH)
 				time.sleep(0.1)
@@ -102,7 +124,7 @@ def LEDwave(DATA, STOR, SHIFT):
 				GPIO.output(STOR, GPIO.HIGH)
 				time.sleep(0.1)
 				GPIO.output(STOR, GPIO.LOW)
-			for i in range(0,8):
+			#for i in range(0,8):
 				GPIO.output(DATA, GPIO.LOW)
 				time.sleep(0.1)
 				GPIO.output(SHIFT, GPIO.HIGH)
@@ -118,8 +140,26 @@ def LEDwave(DATA, STOR, SHIFT):
 def changeLEDColor():
 	print("LEDs change color")
 
-def sendByte():
+def sendByte(val=0b10000001, DATA=21, STOR=13, SHIFT=18):
 	print("send byte to shift register")
+	'''
+	for ind, bit in enumerate(bin(val)):
+		if (ind<2):
+			continue
+		elif (bit==1):
+			GPIO.output(DATA, GPIO.HIGH)
+			print("yes equal")
+		else:
+			GPIO.output(DATA, GPIO.LOW)
+		time.sleep(0.1)
+		GPIO.output(SHIFT, GPIO.HIGH)
+		time.sleep(0.1)
+		GPIO.output(SHIFT, GPIO.LOW)
+		GPIO.output(DATA, GPIO.LOW)
+		GPIO.output(STOR, GPIO.HIGH)
+		time.sleep(0.1)
+		GPIO.output(STOR, GPIO.LOW)
+	'''
 
 ## sound ##
 
@@ -158,6 +198,29 @@ def setupMotors(IN1, IN2, EN1, IN3, IN4, EN2):
 	GPIO.setup(IN4, GPIO.OUT)
 	GPIO.setup(EN2, GPIO.OUT)
 
+def forward(IN1, IN2, EN1, IN3, IN4, EN2):
+	print("\tFORWARD MOTION")
+	GPIO.output(IN1, GPIO.HIGH)
+	GPIO.output(IN2, GPIO.LOW)
+	GPIO.output(EN1, GPIO.HIGH)
+	GPIO.output(IN3, GPIO.HIGH)
+	GPIO.output(IN4, GPIO.LOW)
+	GPIO.output(EN2, GPIO.HIGH)
+
+def backward(IN1, IN2, EN1, IN3, IN4, EN2):
+	print("\tBACKWARD MOTION")
+	GPIO.output(IN1, GPIO.LOW)
+	GPIO.output(IN2, GPIO.HIGH)
+	GPIO.output(EN1, GPIO.HIGH)
+	GPIO.output(IN3, GPIO.LOW)
+	GPIO.output(IN4, GPIO.HIGH)
+	GPIO.output(EN2, GPIO.HIGH)
+
+def stopMotors(IN1, IN2, EN1, IN3, IN4, EN2):
+	print("\tSTOP")
+	GPIO.output(EN1, GPIO.LOW)
+	GPIO.output(EN2, GPIO.LOW)
+
 def motorTest(IN1, IN2, EN1, IN3, IN4, EN2):
 	print("power motors on")
 
@@ -168,37 +231,47 @@ def motorTest(IN1, IN2, EN1, IN3, IN4, EN2):
 	GPIO.setup(IN4, GPIO.OUT)
 	GPIO.setup(EN2, GPIO.OUT)
 
-	print("\tFORWARD MOTION")
+	#print("\tFORWARD MOTION")
+	#GPIO.output(IN1, GPIO.HIGH)
+	#GPIO.output(IN2, GPIO.LOW)
+	#GPIO.output(EN1, GPIO.HIGH)
+	#GPIO.output(IN3, GPIO.HIGH)
+	#GPIO.output(IN4, GPIO.LOW)
+	#GPIO.output(EN2, GPIO.HIGH)
+
+	forward(IN1, IN2, EN1, IN3, IN4, EN2)
+	time.sleep(2)
+
+	#print("\tBACKWARD MOTION")
+	#GPIO.output(IN1, GPIO.LOW)
+	#GPIO.output(IN2, GPIO.HIGH)
+	#GPIO.output(EN1, GPIO.HIGH)
+	#GPIO.output(IN3, GPIO.LOW)
+	#GPIO.output(IN4, GPIO.HIGH)
+	#GPIO.output(EN2, GPIO.HIGH)
+	backward(IN1, IN2, EN1, IN3, IN4, EN2)
+
+	time.sleep(2)
+
+	#print("\tSTOP")
+	#GPIO.output(EN1, GPIO.LOW)
+	#GPIO.output(EN2, GPIO.LOW)
+	stopMotors(IN1, IN2, EN1, IN3, IN4, EN2)
+	#GPIO.cleanup()
+
+def rightTurn(IN1, IN2, EN1, IN3, IN4, EN2):
+	print("make right turn")
 	GPIO.output(IN1, GPIO.HIGH)
 	GPIO.output(IN2, GPIO.LOW)
 	GPIO.output(EN1, GPIO.HIGH)
+	GPIO.output(EN2, GPIO.LOW)
+
+def leftTurn(IN1, IN2, EN1, IN3, IN4, EN2):
+	print("make left turn")
+	GPIO.output(EN1, GPIO.LOW)
 	GPIO.output(IN3, GPIO.HIGH)
 	GPIO.output(IN4, GPIO.LOW)
 	GPIO.output(EN2, GPIO.HIGH)
-
-	time.sleep(3)
-
-	print("\tBACKWARD MOTION")
-	GPIO.output(IN1, GPIO.LOW)
-	GPIO.output(IN2, GPIO.HIGH)
-	GPIO.output(EN1, GPIO.HIGH)
-	GPIO.output(IN3, GPIO.LOW)
-	GPIO.output(IN4, GPIO.HIGH)
-	GPIO.output(EN2, GPIO.HIGH)
-
-	time.sleep(3)
-
-	print("\tSTOP")
-	GPIO.output(EN1, GPIO.LOW)
-	GPIO.output(EN2, GPIO.LOW)
-
-	GPIO.cleanup()
-
-def rightTurn():
-	print("make right turn")
-
-def leftTurn():
-	print("make left turn")
 
 ## sensors ##
 
@@ -222,13 +295,17 @@ def readDist(spiChannel):
 
 	try:
 		while True:
-			print("\tNOTE: ^C to stop testing readDist")
-			print("\tdistance in cm:", readADC(spi))
-			print()
+			#print("\tNOTE: ^C to stop testing readDist")
+			dist = readADC(spi)
+			print("\tdistance in cm:", dist)
+			if (dist >= 37):
+				print("\t\tSomething detected!")
+			else:
+				print("\t\tNothing...")
 			time.sleep(1)
 	except KeyboardInterrupt:
 		spi.close()
-		GPIO.cleanup()
+		#GPIO.cleanup()
 
 def registerTap():
 	print("gets a signal from linear softpot")
