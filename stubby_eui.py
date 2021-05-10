@@ -3,6 +3,10 @@ import time
 import spidev
 import Adafruit_SSD1306
 from PIL import Image
+from PIL import ImageDraw
+from PIL import ImageFont
+
+#PWM = -1
 
 def info():
 	'''Prints a basic library description'''
@@ -44,14 +48,14 @@ def waitForBtnPress(timerPin, duration):
 		while True:
 			btnPressed = GPIO.input(timerPin) # 0 is false & 1 is true
 			time.sleep(0.5)
-                	# button pressed to end timer
+                # button pressed to end timer
 			if (btnPressed and timerRunning):
 				print("Timer forced to end")
 				timerRunning = False
 				print("Waiting for button press to start timer...")
 				continue
 
-                	# button pressed to start timer
+                # button pressed to start timer
 			if (btnPressed and not timerRunning):
 				print("Timer starts")
 				start = time.time()
@@ -168,25 +172,30 @@ def setupSound(soundPin):
 	GPIO.setmode(GPIO.BCM)
 	GPIO.setup(soundPin, GPIO.OUT)
 
+#def stopSound():
+#	PWM.stop()
+
 def makeSound(soundPin):
 	print("piezo make a sound")
-	pwm = GPIO.PWM(soundPin, 276)
-	pwm.start(1)
+	PWM = GPIO.PWM(soundPin, 276)
+	PWM.start(1)
 	time.sleep(1)
-	pwm.stop()
+	#stopSound()
+	PWM.stop()
 
 def playMelody(song, beat, tempo, soundPin):
 	print("piezo plays a song")
 
-	pwm = GPIO.PWM(soundPin, 100)
-	pwm.start(50)
+	PWM = GPIO.PWM(soundPin, 100)
+	PWM.start(50)
 
 	for i in range(0, len(song)):
-		pwm.ChangeFrequency(song[i])
+		PWM.ChangeFrequency(song[i])
 		time.sleep(beat[i]*tempo)
 
-	pwm.ChangeDutyCycle(0)
-	pwm.stop()
+	PWM.ChangeDutyCycle(0)
+	PWM.stop()
+	#stopSound()
 
 ## movements ##
 
@@ -298,7 +307,7 @@ def readDist(spiChannel):
 			#print("\tNOTE: ^C to stop testing readDist")
 			dist = readADC(spi)
 			print("\tdistance in cm:", dist)
-			if (dist >= 37):
+			if (dist > 37):
 				print("\t\tSomething detected!")
 			else:
 				print("\t\tNothing...")
@@ -315,10 +324,13 @@ def buttonPressed():
 
 ## display ##
 
-def displayOn():
+def setupDisplay(pin):
+	return Adafruit_SSD1306.SSD1306_128_64(rst=pin)
+
+def displayOn(disp):
 	print("currently displaying happycat image")
-	RST = 24
-	disp = Adafruit_SSD1306.SSD1306_128_64(rst=RST)
+	#RST = 24
+	#disp = Adafruit_SSD1306.SSD1306_128_64(rst=RST)
 	disp.begin()
 	disp.clear()
 	disp.display()
@@ -332,19 +344,19 @@ def displayOn():
 	disp.image(image)
 	disp.display()
 
-def displayOff():
+def displayOff(disp):
 	print("display will turn off in one second")
-	RST = 24
-	disp = Adafruit_SSD1306.SSD1306_128_64(rst=RST)
+	#RST = 24
+	#disp = Adafruit_SSD1306.SSD1306_128_64(rst=RST)
 	time.sleep(1)
 	disp.clear()
 	disp.display()
 	print("display has turned off")
 
-def displayImage():
+def displayImage(disp):
 	print("displaying other image")
-	RST = 24
-	disp = Adafruit_SSD1306.SSD1306_128_64(rst=RST)
+	#RST = 24
+	#disp = Adafruit_SSD1306.SSD1306_128_64(rst=RST)
 	disp.clear()
 	disp.display()
 	'''
@@ -358,6 +370,36 @@ def displayImage():
 	'''
 	disp.display()
 
-def displayText(text):
+def editText(text):
+	ret = ""
+	last = ""
+
+	#add \n and white space for strings that are not exactly multiples of 21 (the edge of the OLED screen)
+	if ((len(text)%21)):
+		#if not exactly multiple, need to know how much white space to add at the end
+		last = ' ' * (21 - len(text)%21)
+	text += last
+	for ind in range(1, (len(text)//21)+1):
+		ret += text[ind*21-21:ind*21] + '\n'
+	return ret
+
+def displayText(disp, text):
 	print("displaying text on OLED:\n" + text)
-	#
+	disp.begin()
+	disp.clear()
+	disp.display()
+	width = disp.width
+	height = disp.height
+	image = Image.new('1', (width, height))
+	draw = ImageDraw.Draw(image)
+	draw.rectangle((0,0,width,height), outline=0, fill=0)
+	padding = -2
+	line = padding
+	bottom = height - padding
+	x = 0
+	font = ImageFont.load_default()
+	text = editText(text)
+	draw.multiline_text((x, line), text, font=font, fill=255)
+	disp.image(image)
+	disp.display()
+	time.sleep(0.1)

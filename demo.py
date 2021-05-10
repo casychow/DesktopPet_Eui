@@ -50,7 +50,8 @@ IN4 = 0
 EN2 = 5
 
 #DISPLAY
-text = "cassandra was here"
+RST = 26 #24
+text = "cassandra was here - bleep, blap, bloop :P"
 
 info()
 
@@ -61,14 +62,6 @@ setupBtnForTimer(TIMERPIN)
 waitForBtnPress(TIMERPIN, 10)
 
 setupLED(DATA, STOR, SHIFT, NSHIFT)
-'''
-turnOnLED()
-turnOffLED()
-#LEDwave(DATA, STOR, SHIFT)
-LEDwave()
-changeLEDColor()
-sendByte()
-'''
 sendByte()
 turnOffLED()
 turnOnLED()
@@ -95,9 +88,10 @@ readDist(0)
 #buttonPressed()
 #probably won't get to this - mute sounds
 
-displayOn()
-displayOff()
-displayImage()
-displayText(text)
+disp = setupDisplay(RST)
+displayOn(disp)
+displayOff(disp)
+displayImage(disp)
+displayText(disp, text)
 
 GPIO.cleanup()
