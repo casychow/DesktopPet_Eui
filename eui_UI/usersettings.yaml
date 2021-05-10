@@ -1,13 +1,13 @@
-lightOption: 1
-motionOption: 1
-numReminder: 0
-numSnooze: 2
-restOption: 1
-restPeriod: 5
-restPersonalized: ''
-soundOption: 1
-username: Buddy
-workOption: 1
-workPeriod: 25
-workPersonalized: ''
 lastUsedDay: ['', '']
+lightOption: 1
+motionOption: 2
+numReminder: 0
+numSnooze: 0
+restOption: 2
+restPeriod: 20
+restPersonalized: Have you taken a physical break away from your computer?
+soundOption: 1
+username: Charles
+workOption: 1
+workPeriod: 50
+workPersonalized: ''

@@ -37,6 +37,8 @@ from datetime import datetime
 import time
 import random
 import threading
+import sys
+import multiprocessing
 
 ''' Globals '''
 
@@ -120,11 +122,11 @@ euiAskedQuestion = False
 ''' Run in the background '''
 
 def handleButtonPressed():
+    print("worker thread here <----")
     while True:
         if (buttonPressed(TIMER_BTN)):          # if timer button is pressed
-
             if (not workTimerStarted):          # if work timer was not started
-                start = time.time()             # start work timer   
+                start = time.time()             # start work timer
                 workTimerStarted = True         # mark as started work
             elif (not restTimerStarted):        # else if rest timer was not started
                 start = time.time()             # start rest timer
@@ -158,6 +160,7 @@ def handleButtonPressed():
 
 def waitForButtonsThread():
     btnThread = threading.Thread(target=handleButtonPressed, name="Button")
+    btnThread.daemon = True
     btnThread.start()
 
 
@@ -171,6 +174,7 @@ def setup():
 
 def runAtStartup():
     setup()
+    makeSound(SOUNDPIN)
     displayMessageAtStartup()
     waitForButtonsThread()
 
@@ -185,15 +189,14 @@ def countPomodoros(weekday):
     return len(query)//2, query    # one pomodoro = one work period + one break period
 
 def displayMessageAtStartup():
-    message = "Hi Buddy!\n"
+    message = "Hi " + USER_SETTINGS['username'] + "!\n"
     lastUsedWeekday, lastUsedDate = USER_SETTINGS['lastUsedDay']
-    
     if (lastUsedWeekday == ""):
         message += "You completed 0 pomodoros this week...\n"
     else:
         numPomodoros, query = countPomodoros(lastUsedWeekday)
 
-        message += "Previously on " + lastUsedDate + ", you completed " 
+        message += "Previously on " + lastUsedDate + ", you completed "
         message += str(numPomodoros) + " pomodoros!\n"
 
     displayText(message)    # display message on OLED
@@ -207,44 +210,56 @@ def displayResponse(encourageUser):     # encourageUser is a bool
         5: "Eui knew you can do it! <3"
     }
 
+    message = "Good job!\n" + switcher.get(random.randint(1,5), "nothing")
+
     if (not encourageUser):
         message = "Ahh... Is that so...\nTry again next time...\n"
-    else:
-        message = "Good job!\n" + switcher.get(random.randint(1,5), "nothing")
-    
+
     displayText(message)    # display message on OLED
 
 
 ''' Functions for alarms '''
 
+ALARM_PROCESSES = []
+
 def euiMove():
     while True:
         rightTurn(IN1, IN2, EN1, IN3, IN4, EN2)
-        sleep(2)
+        time.sleep(0.5)
         leftTurn(IN1, IN2, EN1, IN3, IN4, EN2)
-        sleep(2)
+        time.sleep(0.5)
 
 def alarmOn():
     if (USER_SETTINGS['lightOption'] != 5):     # user wanted some sort of lights
-        LEDwave()
+        lightShow = multiprocessing.Process(target=LEDwave)
+        #lightShow = threading.Thread(target=LEDwave, name="Light Show")
+        lightShow.start()
+        ALARM_PROCESSES.append(lightShow)
 
     if (USER_SETTINGS['motionOption'] != 5):    # user wanted some sort of movement
-        motorThread = threading.Thread(target=euiMove, name="Eui Move")
+        motorThread = multiprocessing.Process(target=euiMove)
+        #motorThread = threading.Thread(target=euiMove, name="Eui Move")
         motorThread.start()
+        ALARM_PROCESSES.append(motorThread)
 
     if (USER_SETTINGS['soundOption'] != 4):     # user wanted some sort of sound
-        playMelody(londonBridge, LBbeats, 0.3, SOUNDPIN)
+        playSong = multiprocessing.Process(target=playMelody, args=(londonBridge, LBbeats, 0.3, SOUNDPIN))
+        #playSong = threading.Thread(target=playMelody, name="Sound show", args=(londonBridge, LBbeats, 0.3, SOUNDPIN))
+        playSong.start()
+        ALARM_PROCESSES.append(playSong)
 
 def alarmOff():
     if (USER_SETTINGS['lightOption'] != 5):     # user wanted some sort of lights
         turnOffLED()
 
     if (USER_SETTINGS['motionOption'] != 5):    # user wanted some sort of movement
-        stopMotors()
+        stopMotors(IN1, IN2, EN1, IN3, IN4, EN2)
 
-    if (USER_SETTINGS['soundOption'] != 4):     # user wanted some sort of sound
-        stopSound()
+    #if (USER_SETTINGS['soundOption'] != 4):     # user wanted some sort of sound
+        #stopSound()
 
+    for process in ALARM_PROCESSES:
+        process.terminate() #terminate running thread
 
 ''' Functions to Store Information to Database & Yaml '''
 
@@ -275,7 +290,7 @@ def storeCurrDayAndDate():
     with open(USER_INFO_FILE, 'w') as file:
         yaml.dump(USER_SETTINGS, file)
 
-def insertUserData(userDidWork, askedAQuestion, 
+def insertUserData(userDidWork, askedAQuestion,
                     userAnsweredQuestion, sessionDuration):
     cur = conn.cursor()
 
@@ -285,9 +300,8 @@ def insertUserData(userDidWork, askedAQuestion,
 
     if (not userDidWork):
         completedTask = 1   # user took a break
-    
     if (askedAQuestion):    # user was asked a question
-        if (userAnsweredQuestion):      # user answered the question 
+        if (userAnsweredQuestion):      # user answered the question
             questionAnswered = 1
         else:
             questionAnswered = 2        # user did not answer the question
@@ -299,3 +313,16 @@ def insertUserData(userDidWork, askedAQuestion,
     cur.execute(insertStatement, (date, weekday, sessionDuration, completedTask, questionAnswered))
     conn.commit()
     cur.close()
+
+if __name__ == '__main__':
+    try:
+        runAtStartup()
+        #test button press here
+        alarmOn()
+        time.sleep(5)
+        alarmOff()
+    except KeyboardInterrupt:
+        stopMotors(IN1, IN2, EN1, IN3, IN4, EN2)
+        turnOffLED()
+        GPIO.cleanup()
+        sys.exit()

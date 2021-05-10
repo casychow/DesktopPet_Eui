@@ -245,15 +245,15 @@ def motorTest(IN1, IN2, EN1, IN3, IN4, EN2):
 
 	stopMotors(IN1, IN2, EN1, IN3, IN4, EN2)
 
-def rightTurn(IN1, IN2, EN1, IN3, IN4, EN2):
-	print("make right turn")
+def leftTurn(IN1, IN2, EN1, IN3, IN4, EN2):
+	print("make left turn")
 	GPIO.output(IN1, GPIO.HIGH)
 	GPIO.output(IN2, GPIO.LOW)
 	GPIO.output(EN1, GPIO.HIGH)
 	GPIO.output(EN2, GPIO.LOW)
 
-def leftTurn(IN1, IN2, EN1, IN3, IN4, EN2):
-	print("make left turn")
+def rightTurn(IN1, IN2, EN1, IN3, IN4, EN2):
+	print("make right turn")
 	GPIO.output(EN1, GPIO.LOW)
 	GPIO.output(IN3, GPIO.HIGH)
 	GPIO.output(IN4, GPIO.LOW)
@@ -296,8 +296,14 @@ def readDist(spiChannel):
 def registerTap():
 	print("gets a signal from linear softpot")
 
-def buttonPressed():
-	print("button is pressed")
+def buttonPressed(pin):
+	'''
+	try:
+		while True:
+			print("button is pressed")
+	except KeyboardInterrupt:
+		print("\t^C was pressed")
+	'''
 
 ## display ##
 
@@ -358,7 +364,7 @@ def editText(text):
 		ret += text[ind*21-21:ind*21] + '\n'
 	return ret
 
-def displayText(disp, text):
+def displayText(text, disp=Adafruit_SSD1306.SSD1306_128_64(rst=26)):
 	print("displaying text on OLED:\n" + text)
 	disp.begin()
 	disp.clear()

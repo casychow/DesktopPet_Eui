@@ -55,7 +55,7 @@ text = "cassandra was here - bleep, blap, bloop :P"
 
 
 info()
-
+'''
 workTime(True)
 breakTime(True)
 
@@ -76,7 +76,7 @@ setupSound(SOUNDPIN)
 makeSound(SOUNDPIN)
 sleep(2)
 playMelody(londonBridge, LBbeats, 0.3, SOUNDPIN)
-
+'''
 motorTest(IN1, IN2, EN1, IN3, IN4, EN2)
 sleep(2)
 rightTurn(IN1, IN2, EN1, IN3, IN4, EN2)
@@ -97,7 +97,7 @@ displayOn(disp)
 sleep(2)
 displayImage(disp)
 sleep(1)
-displayText(disp, text)
+displayText(text, disp)
 displayOff(disp)
 
 GPIO.cleanup()

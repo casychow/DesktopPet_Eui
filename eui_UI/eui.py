@@ -42,8 +42,8 @@ USER_INFO_FILE = 'usersettings.yaml'
 with open(USER_INFO_FILE) as file:
     # The FullLoader parameter handles the conversion from YAML
     # scalar values to Python the dictionary format
-    USER_SETTINGS = yaml.load(file, Loader=yaml.FullLoader)
-
+    #USER_SETTINGS = yaml.load(file, Loader=yaml.FullLoader)
+    USER_SETTINGS = yaml.safe_load(file)
 # database file with pomodoro usage statistics
 EUI_STATS_FILE = "sample_eui_stats.db"      # using sample/toy database file
 # EUI_STATS_FILE = "eui_stats.db"             # actual database file
