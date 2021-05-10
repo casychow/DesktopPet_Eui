@@ -109,7 +109,7 @@ def editPomodoroTimer():
         USER_SETTINGS['workPersonalized'] = ""
     elif (getOption == "work_option2"):
         USER_SETTINGS['workOption'] = 2
-        USER_SETTINGS['workPersonalized'] = ""
+        USER_SETTINGS['workPersonalized'] = "Have you worked on an important and urgent task?"
     else:
         USER_SETTINGS['workOption'] = 3
         getVal = request.form['workPersonalized']
@@ -123,7 +123,7 @@ def editPomodoroTimer():
         USER_SETTINGS['restPersonalized'] = ""
     elif (getOption == "rest_option2"):
         USER_SETTINGS['restOption'] = 2
-        USER_SETTINGS['restPersonalized'] = ""
+        USER_SETTINGS['restPersonalized'] = "Have you taken a physical break away from your computer?"
     else:
         USER_SETTINGS['restOption'] = 3
         getVal = request.form['restPersonalized']
@@ -134,10 +134,24 @@ def editPomodoroTimer():
     with open(USER_INFO_FILE, 'w') as file:
         yaml.dump(USER_SETTINGS, file)
 
+    # only display message if option 3 is chosen
+    if (USER_SETTINGS['workOption'] == 3 and USER_SETTINGS['restOption'] == 3):
+        workMessage = USER_SETTINGS['workPersonalized']
+        restMessage = USER_SETTINGS['restPersonalized']
+    elif (USER_SETTINGS['workOption'] == 3):
+        workMessage = USER_SETTINGS['workPersonalized']
+        restMessage = ""
+    elif (USER_SETTINGS['restOption'] == 3):
+        workMessage = ""
+        restMessage = USER_SETTINGS['restPersonalized']
+    else:
+        workMessage = ""
+        restMessage = ""
+
     return render_template('pomodoro.html', workOption=USER_SETTINGS['workOption'], restOption=USER_SETTINGS['restOption'], 
                             workPeriod=USER_SETTINGS['workPeriod'], restPeriod=USER_SETTINGS['restPeriod'], 
                             numReminder=USER_SETTINGS['numReminder'], numSnooze=USER_SETTINGS['numSnooze'], 
-                            setWorkPersonalized=USER_SETTINGS['workPersonalized'], setRestPersonalized=USER_SETTINGS['restPersonalized'])
+                            setWorkPersonalized=workMessage, setRestPersonalized=restMessage)
 
 ''' Handle Statistics page '''
 

@@ -34,8 +34,9 @@ import yaml     # for storing user configuration settings
 import sqlite3  # for storing user's pomodoro usage statistics
 
 from datetime import datetime
+import time
 import random
-
+import threading
 
 ''' Globals '''
 
@@ -57,6 +58,35 @@ try:
 except Error as e:
     print(e)
 
+# for playMelody() -- London Bridge
+
+c = [32, 65, 131, 262, 523]
+db = [34, 69, 139, 277, 554]
+d = [36, 73, 147, 294, 587]
+eb = [37, 78, 156, 311, 622]
+e = [41, 82, 165, 330, 659]
+f = [43, 87, 175, 349, 698]
+gb = [46, 92, 185, 370, 740]
+g = [49, 98, 196, 392, 784]
+ab = [52, 104, 208, 415, 831]
+a = [55, 110, 220, 440, 880]
+bb = [58, 117, 223, 466, 932]
+b = [61, 123, 246, 492, 984]
+
+''' BEATS:
+        0.5 = eigth note
+        1 = quarter note
+        2 = half note
+        3 = dotted half note
+        4 = whole note
+'''
+
+londonBridge = [g[2], a[2], g[2], f[2], e[2], f[2], g[2], d[2],
+                e[2], f[2], e[2], f[2], g[2], g[2], a[2], g[2],
+                f[2], e[2], f[2], g[2], d[2], g[2], e[2], c[2]]
+LBbeats = [2, 0.5, 1, 1, 1, 1, 2, 1, 1, 2, 1, 1, 2, 2, 0.5, 1,
+                1, 1, 1, 2, 2, 2, 1, 1]
+
 # Pins for lights
 DATA = 21
 STOR = 13
@@ -71,6 +101,65 @@ IN3 = 1
 IN4 = 0
 EN2 = 5
 
+# Pin for OLED display
+RST = 24
+
+# Pins for Buttons
+TIMER_BTN = 0
+STOP_ALARM_BTN = 0
+
+# Pin for Sound
+SOUNDPIN = 12
+
+workTimerStarted = False
+restTimerStarted = False
+euiGotAResponse = False
+euiAskedQuestion = False
+
+
+''' Run in the background '''
+
+def handleButtonPressed():
+    while True:
+        if (buttonPressed(TIMER_BTN)):          # if timer button is pressed
+
+            if (not workTimerStarted):          # if work timer was not started
+                start = time.time()             # start work timer   
+                workTimerStarted = True         # mark as started work
+            elif (not restTimerStarted):        # else if rest timer was not started
+                start = time.time()             # start rest timer
+                restTimerStarted = True         # mark as started rest
+            elif (workTimerStarted):            # end work session early
+                workTimerStarted = False
+                displayText("Work session won't count! Ended session early...")
+            elif (restTimerStarted):            # end rest session early
+                restTimerStarted = False
+                displayText("Rest session won't count! Ended session early...")
+
+        if (buttonPressed(STOP_ALARM_BTN)):
+            alarmOff()
+
+        # checks if timed session is complete (FOR NOW: assumes user does not answer question)
+
+        if (workTimerStarted):
+            if (time.time()-start >= (USER_SETTINGS['workPeriod']*60)):
+                workTimerStarted = False
+                alarmOn()
+
+                insertUserData(True, (USER_SETTINGS['workOption'] != 1), 
+                                euiGotAResponse, USER_SETTINGS['workPeriod'])
+        if (restTimerStarted):
+            if (time.time()-start >= (USER_SETTINGS['restPeriod']*60)):
+                restTimerStarted = False
+                alarmOn()
+
+                insertUserData(True, (USER_SETTINGS['restOption'] != 1), 
+                                    euiGotAResponse, USER_SETTINGS['restPeriod'])
+
+def waitForButtonsThread():
+    btnThread = threading.Thread(target=handleButtonPressed, name="Button")
+    btnThread.start()
+
 
 ''' Run at start up '''
 
@@ -78,10 +167,12 @@ def setup():
     setupLED(DATA, STOR, SHIFT, NSHIFT)
     setupSound(SOUNDPIN)
     setupMotors(IN1, IN2, EN1, IN3, IN4, EN2)
+    setupDisplay(RST)
 
 def runAtStartup():
     setup()
     displayMessageAtStartup()
+    waitForButtonsThread()
 
 
 ''' OLED Display Functions '''
@@ -122,6 +213,37 @@ def displayResponse(encourageUser):     # encourageUser is a bool
         message = "Good job!\n" + switcher.get(random.randint(1,5), "nothing")
     
     displayText(message)    # display message on OLED
+
+
+''' Functions for alarms '''
+
+def euiMove():
+    while True:
+        rightTurn(IN1, IN2, EN1, IN3, IN4, EN2)
+        sleep(2)
+        leftTurn(IN1, IN2, EN1, IN3, IN4, EN2)
+        sleep(2)
+
+def alarmOn():
+    if (USER_SETTINGS['lightOption'] != 5):     # user wanted some sort of lights
+        LEDwave()
+
+    if (USER_SETTINGS['motionOption'] != 5):    # user wanted some sort of movement
+        motorThread = threading.Thread(target=euiMove, name="Eui Move")
+        motorThread.start()
+
+    if (USER_SETTINGS['soundOption'] != 4):     # user wanted some sort of sound
+        playMelody(londonBridge, LBbeats, 0.3, SOUNDPIN)
+
+def alarmOff():
+    if (USER_SETTINGS['lightOption'] != 5):     # user wanted some sort of lights
+        turnOffLED()
+
+    if (USER_SETTINGS['motionOption'] != 5):    # user wanted some sort of movement
+        stopMotors()
+
+    if (USER_SETTINGS['soundOption'] != 4):     # user wanted some sort of sound
+        stopSound()
 
 
 ''' Functions to Store Information to Database & Yaml '''
