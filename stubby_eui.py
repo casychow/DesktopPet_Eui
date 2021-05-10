@@ -44,14 +44,14 @@ def waitForBtnPress(timerPin, duration):
 		while True:
 			btnPressed = GPIO.input(timerPin) # 0 is false & 1 is true
 			time.sleep(0.5)
-                	# button pressed to end timer
+            # button pressed to end timer
 			if (btnPressed and timerRunning):
 				print("Timer forced to end")
 				timerRunning = False
 				print("Waiting for button press to start timer...")
 				continue
 
-                	# button pressed to start timer
+        	# button pressed to start timer
 			if (btnPressed and not timerRunning):
 				print("Timer starts")
 				start = time.time()
