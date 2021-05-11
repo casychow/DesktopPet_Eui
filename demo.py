@@ -34,7 +34,7 @@ GPIO.setwarnings(False)
 GPIO.setmode(GPIO.BCM)
 SOUNDPIN = 12
 TIMERPIN = 23
-BTNPIN = 24 #pin for the general button
+BTNPIN = 24 #pin for the general button #blue?
 
 #LIGHTS
 DATA = SOUNDPIN #because we are sharing the same PWM pin as the SOUNDPIN #previously 21
@@ -52,7 +52,7 @@ EN2 = 5
 
 #DISPLAY
 RST = 26 #24
-text = "Hi USER. My name is EUI and my job is to keep you accountable in your work and home life."
+text = "Hi USER. My name is EUI and my job is to keep you accountable."
 
 
 info()
@@ -97,7 +97,8 @@ readDist(0)
 #registerTap()
 #probably won't get to this - used to answer questions on the OLED display
 setupBtn(BTNPIN)
-buttonPressed(BTNPIN)
+if (buttonPressed(BTNPIN)):
+	print("blue button pressed")
 
 disp = setupDisplay(RST)
 displayOn(disp)

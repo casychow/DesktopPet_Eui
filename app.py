@@ -198,10 +198,13 @@ def stateMachine():
     '''
 
     while True:
+        print("STATE =", STATE)
+        time.sleep(1)
         if (STATE == "IDLE"):
             print("in IDLE...")
             # block while blue button is not pressed
             while (not buttonPressed(POMODORO_BTN)):
+                print("inside while IDLE")
                 continue
 
             # set up fields for user to start work session
@@ -210,6 +213,10 @@ def stateMachine():
             displayText("Time to start working! FIGHTING!")
 
         if (STATE == "WORK"):
+            time.sleep(0.1*60)
+            #wait for button press (wait for edge function)
+            #acquire lock
+            #
 
             # if duration of the work session is over
 #            if (time.time()-workTimerStarted >= (USER_SETTINGS['workPeriod']*60)):

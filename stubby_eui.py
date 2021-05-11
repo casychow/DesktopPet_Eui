@@ -204,17 +204,17 @@ def forward(IN1, IN2, EN1, IN3, IN4, EN2):
 	GPIO.output(IN2, GPIO.LOW)
 	#GPIO.output(EN1, GPIO.HIGH)
 	GPIO.output(IN3, GPIO.HIGH)
-	#GPIO.output(IN4, GPIO.LOW)
+	GPIO.output(IN4, GPIO.LOW)
 	#GPIO.output(EN2, GPIO.HIGH)
 
 def backward(IN1, IN2, EN1, IN3, IN4, EN2):
 	print("\tBACKWARD MOTION")
+	GPIO.output(EN1, GPIO.HIGH)
+	GPIO.output(EN2, GPIO.HIGH)
 	GPIO.output(IN1, GPIO.LOW)
 	GPIO.output(IN2, GPIO.HIGH)
-	GPIO.output(EN1, GPIO.HIGH)
-	GPIO.output(IN3, GPIO.HIGH)
-	GPIO.output(IN4, GPIO.LOW)
-	GPIO.output(EN2, GPIO.HIGH)
+	GPIO.output(IN3, GPIO.LOW)
+	GPIO.output(IN4, GPIO.HIGH)
 
 def stopMotors(IN1, IN2, EN1, IN3, IN4, EN2):
 	print("\tSTOP")
@@ -250,8 +250,8 @@ def leftTurn(IN1, IN2, EN1, IN3, IN4, EN2):
 def rightTurn(IN1, IN2, EN1, IN3, IN4, EN2):
 	print("make right turn")
 	GPIO.output(EN1, GPIO.LOW)
-	GPIO.output(IN3, GPIO.LOW)
-	GPIO.output(IN4, GPIO.HIGH)
+	GPIO.output(IN3, GPIO.HIGH)
+	GPIO.output(IN4, GPIO.LOW)
 	GPIO.output(EN2, GPIO.HIGH)
 
 ## sensors ##
@@ -292,6 +292,7 @@ def registerTap():
 	print("gets a signal from linear softpot")
 
 def buttonPressed(pin):
+	'''
 	try:
 		while True:
 			#print("Awaiting button press")
@@ -304,6 +305,9 @@ def buttonPressed(pin):
 				return False
 	except KeyboardInterrupt:
 		print("\t^C was pressed")
+	'''
+	#timeout in ms-> ie. 6000ms = 6s
+	return GPIO.wait_for_edge(pin, GPIO.RISING, timeout=6000)
 
 ## display ##
 
