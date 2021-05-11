@@ -167,7 +167,7 @@ def stopAlarmBtnThread():
             time.sleep(0.5)
             start = time.time()
 
-def handleButtonPressed():
+def stateMachine(): #handleButtonPressed():
     print("worker thread here <----")
     '''
     workTimerStarted = False
@@ -181,13 +181,18 @@ def handleButtonPressed():
     global euiGotAResponse
     global start
 
-    pomThread = threading.Thread(target=startPomodoroSeqThread, name="pom")
-    pomThread.start()
+    #pomThread = threading.Thread(target=startPomodoroSeqThread, name="pom")
+    #pomThread.start()
 
-    stopAlarmThread = threading.Thread(target=stopAlarmBtnThread, name="start_alarm")
-    stopAlarmThread.start()
+    #stopAlarmThread = threading.Thread(target=stopAlarmBtnThread, name="start_alarm")
+    #stopAlarmThread.start()
 
     while True:
+        #need if statements for idle: wait for btnpress, not start thread - only blocking press
+            #if pressed -> state = work
+            #work indicator - dimmed LED lights
+        #if work:
+        #rest:
         '''
         if (buttonPressed(START_POMODORO_SEQ)):          # if timer button is pressed
             if (workTimerStarted and pomodoroStarted):
@@ -227,9 +232,9 @@ def handleButtonPressed():
             if (time.time()-start >= (0.1*60)):
                 print("Work time is over. Go rest.")
 
-                #alarmOn()
-                alarmThread = threading.Thread(target=alarmOn, name="alarm")
-                alarmThread.start()
+                alarmOn()
+                #alarmThread = threading.Thread(target=alarmOn, name="alarm")
+                #alarmThread.start()
 
                 insertUserData(True, (USER_SETTINGS['workOption'] != 1),
                                 euiGotAResponse, USER_SETTINGS['workPeriod'])
@@ -240,14 +245,14 @@ def handleButtonPressed():
 
         if (restTimerStarted):
             #if (time.time()-start >= (USER_SETTINGS['restPeriod']*60)):
-            print(time.time()-start)
+            #print(time.time()-start)
 
             if (time.time()-start >= (0.1*60)):
                 print("Rest time is over. Go work.")
 
-                #alarmOn()
-                alarmThread = threading.Thread(target=alarmOn, name="alarm")
-                alarmThread.start()
+                alarmOn()
+                #alarmThread = threading.Thread(target=alarmOn, name="alarm")
+                #alarmThread.start()
 
                 insertUserData(False, (USER_SETTINGS['restOption'] != 1),
                                     euiGotAResponse, USER_SETTINGS['restPeriod'])
@@ -339,27 +344,31 @@ def euiMove():
         time.sleep(0.5)
         leftTurn(IN1, IN2, EN1, IN3, IN4, EN2)
         time.sleep(0.5)
+        break
 
 def alarmOn():
+    print("alarmOn begin:", threading.active_count())
     if (USER_SETTINGS['lightOption'] != 5):     # user wanted some sort of lights
-        lightShow = multiprocessing.Process(target=LEDwave)
-        #lightShow = threading.Thread(target=LEDwave, name="Light Show")
+        #lightShow = multiprocessing.Process(target=LEDwave)
+        lightShow = threading.Thread(target=LEDwave, name="Light Show")
         lightShow.start()
-        ALARM_PROCESSES.append(lightShow)
+        #ALARM_PROCESSES.append(lightShow)
 
     if (USER_SETTINGS['motionOption'] != 5):    # user wanted some sort of movement
-        motorThread = multiprocessing.Process(target=euiMove)
-        #motorThread = threading.Thread(target=euiMove, name="Eui Move")
+        #motorThread = multiprocessing.Process(target=euiMove)
+        motorThread = threading.Thread(target=euiMove, name="Eui Move")
         motorThread.start()
-        ALARM_PROCESSES.append(motorThread)
+        #ALARM_PROCESSES.append(motorThread)
 
     if (USER_SETTINGS['soundOption'] != 4):     # user wanted some sort of sound
-        playSong = multiprocessing.Process(target=playMelody, args=(londonBridge, LBbeats, 0.3, SOUNDPIN))
-        #playSong = threading.Thread(target=playMelody, name="Sound show", args=(londonBridge, LBbeats, 0.3, SOUNDPIN))
+        #playSong = multiprocessing.Process(target=playMelody, args=(londonBridge, LBbeats, 0.3, SOUNDPIN))
+        playSong = threading.Thread(target=playMelody, name="Sound show", args=(londonBridge, LBbeats, 0.3, SOUNDPIN))
         playSong.start()
-        ALARM_PROCESSES.append(playSong)
+        #ALARM_PROCESSES.append(playSong)
+    print("alarmOn after:", threading.active_count())
 
 def alarmOff():
+    print("alarmOff begin:", threading.active_count())
     if (USER_SETTINGS['lightOption'] != 5):     # user wanted some sort of lights
         turnOffLED()
 
@@ -369,8 +378,9 @@ def alarmOff():
     #if (USER_SETTINGS['soundOption'] != 4):     # user wanted some sort of sound
         #stopSound()
 
-    for process in ALARM_PROCESSES:
-        process.terminate() #terminate running thread
+    #for process in ALARM_PROCESSES:
+    #    process.terminate() #terminate running thread
+    print("alarmOff after:", threading.active_count())
 
 ''' Functions to Store Information to Database & Yaml '''
 

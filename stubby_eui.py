@@ -137,6 +137,7 @@ def LEDwave(DATA=21, STOR=13, SHIFT=18):
 				GPIO.output(STOR, GPIO.HIGH)
 				time.sleep(0.1)
 				GPIO.output(STOR, GPIO.LOW)
+				break
 	except KeyboardInterrupt:
 		turnOffLED()
 		time.sleep(0.1)
@@ -185,6 +186,7 @@ def makeSound(soundPin):
 
 def playMelody(song, beat, tempo, soundPin):
 	print("piezo plays a song")
+	return
 
 	PWM = GPIO.PWM(soundPin, 100)
 	PWM.start(50)
