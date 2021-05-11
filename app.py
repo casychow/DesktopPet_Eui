@@ -38,7 +38,6 @@ import time
 import random
 import threading
 import sys
-import multiprocessing
 
 ''' Globals '''
 
@@ -101,170 +100,222 @@ EN2 = 5
 RST = 26 #24
 
 # Pins for Buttons
-START_POMODORO_SEQ = 23 #red
-STOP_ALARM_BTN = 24 #blue
+RESET_BTN = 23 #red
+POMODORO_BTN = 24 #blue
+RESPOND_YES_BTN = None
+RESPOND_NO_BTN = None
 
 # Pin for Sound
 SOUNDPIN = 12
 
+''' State machine functions '''
 
-workTimerStarted = False
-restTimerStarted = False
-euiGotAResponse = False
-euiAskedQuestion = False
-pomodoroStarted = False
+STATE = "IDLE"
+alarmIsOn = False
+workTimerStarted = None
+restTimerStarted = None
 
-start = 0
+euiGotAResponse = False     # (FOR NOW: assumes user does not answer question)
+euiAskAQuestion = False     # (FOR NOW: assumes eui does not ask a question)
+userRespondYes = False
+userRespondNo = False
 
-''' Run in the background '''
-
-def startPomodoroSeqThread():
-    global workTimerStarted
-    global restTimerStarted
-    global pomodoroStarted
-    global start
-
-    while True:
-        while (not buttonPressed(START_POMODORO_SEQ)):  # while button not pressed
-            continue
-
-        if (workTimerStarted and pomodoroStarted):
-            #if pomodoro and work session is both on, user is ending early
-            workTimerStarted = False
-            pomodoroStarted = False
-            displayText("Work session won't count! Ended session early...")
-        elif (restTimerStarted and pomodoroStarted):
-            #user is ending rest early - not going to count to consecutive pomodoro
-            restTimerStarted = False
-            pomodoroStarted = False
-            displayText("Rest session won't count! Ended session early...")
-        elif (not workTimerStarted and not pomodoroStarted):          # if work timer was not started
-            print("Pomodoro session has begun!")
-            start = time.time()             # start work timer
-            workTimerStarted = True         # mark as started work
-            pomodoroStarted = True
-
-def stopAlarmBtnThread():
-    global workTimerStarted
-    global restTimerStarted
-    global start
-
-    while True:
-        while (not buttonPressed(STOP_ALARM_BTN)):  # while button not pressed
-            continue
-
-        alarmOff()
-        print("Alarm off")
-
-        if (workTimerStarted):
-            workTimerStarted = False
-            restTimerStarted = True
-            time.sleep(0.5)
-            start = time.time()
-        elif (restTimerStarted):
-            restTimerStarted = False
-            workTimerStarted = True
-            time.sleep(0.5)
-            start = time.time()
-
-def stateMachine(): #handleButtonPressed():
-    print("worker thread here <----")
-    '''
-    workTimerStarted = False
-    restTimerStarted = False
-    pomodoroStarted = False
-    euiGotAResponse = False
-    '''
-    global workTimerStarted
-    global restTimerStarted
-    global pomodoroStarted
+'''
+def yesButtonThread():
     global euiGotAResponse
-    global start
-
-    #pomThread = threading.Thread(target=startPomodoroSeqThread, name="pom")
-    #pomThread.start()
-
-    #stopAlarmThread = threading.Thread(target=stopAlarmBtnThread, name="start_alarm")
-    #stopAlarmThread.start()
+    global userRespondYes
 
     while True:
-        #need if statements for idle: wait for btnpress, not start thread - only blocking press
-            #if pressed -> state = work
-            #work indicator - dimmed LED lights
-        #if work:
-        #rest:
-        '''
-        if (buttonPressed(START_POMODORO_SEQ)):          # if timer button is pressed
-            if (workTimerStarted and pomodoroStarted):
-                #if pomodoro and work session is both on, user is ending early
-                workTimerStarted = False
-                pomodoroStarted = False
-                displayText("Work session won't count! Ended session early...")
-            elif (restTimerStarted and pomodoroStarted):
-                #user is ending rest early - not going to count to consecutive pomodoro
-                restTimerStarted = False
-                pomodoroStarted = False
-                displayText("Rest session won't count! Ended session early...")
-            elif (not workTimerStarted and not pomodoroStarted):          # if work timer was not started
-                print("Pomodoro session has begun!")
-                start = time.time()             # start work timer
-                workTimerStarted = True         # mark as started work
-                pomodoroStarted = True
+        # if user answer "yes" and eui asked a question and have not yet gotten a response
+        if (buttonPressed(RESPOND_YES_BTN) and euiAskAQuestion and not euiGotAResponse):
+            euiGotAResponse = True
+            userRespondYes = True
 
-        if (buttonPressed(STOP_ALARM_BTN)):
-            alarmOff()
-            print("Alarm off")
-            if (workTimerStarted):
-                workTimerStarted = False
-                restTimerStarted = True
-                time.sleep(0.5)
-            elif (restTimerStarted):
-                restTimerStarted = False
-                workTimerStarted = True
-                time.sleep(0.5)
-        '''
+def noButtonThread():
+    global euiGotAResponse
+    global userRespondNo
 
+    while True:
+        # if user answer "yes" and eui asked a question and have not yet gotten a response
+        if (buttonPressed(RESPOND_NO_BTN) and euiAskAQuestion and not euiGotAResponse):
+            euiGotAResponse = True
+            userRespondNo = True
+'''
 
-        # checks if timed session is complete (FOR NOW: assumes user does not answer question)
+def resetButtonThread():
+    global STATE
+    global alarmIsOn
+    global workTimerStarted
+    global restTimerStarted
+    global euiGotAResponse
+    global euiAskAQuestion
+    global userRespondYes
+    global userRespondNo
 
-        if (workTimerStarted):
-            #if (time.time()-start >= (USER_SETTINGS['workPeriod']*60)):
-            if (time.time()-start >= (0.1*60)):
-                print("Work time is over. Go rest.")
+    while True:
+        # if red button is pressed
+        if (buttonPressed(RESET_BTN) and STATE != "IDLE"):
 
-                alarmOn()
-                #alarmThread = threading.Thread(target=alarmOn, name="alarm")
-                #alarmThread.start()
+            displayText("Session ended early... this won't count!")
 
-                insertUserData(True, (USER_SETTINGS['workOption'] != 1),
-                                euiGotAResponse, USER_SETTINGS['workPeriod'])
-                #storeSession = threading.Thread(target=insertUserData, name="storeSesh",
-                #                    args=(True, (USER_SETTINGS['workOption'] != 1),
-                #                    euiGotAResponse, USER_SETTINGS['workPeriod']))
-                #storeSession.start()
+            # if alarm is on (i.e. pressed red button while alarm is on)
+            if (alarmIsOn):
+                alarmOff()
 
-        if (restTimerStarted):
-            #if (time.time()-start >= (USER_SETTINGS['restPeriod']*60)):
-            #print(time.time()-start)
+            # reset all fields back to defaults
+            STATE = "IDLE"
+            alarmIsOn = False
+            workTimerStarted = None
+            restTimerStarted = None
+            euiGotAResponse = False
+            euiAskAQuestion = False
+            userRespondYes = False
+            userRespondNo = False
 
-            if (time.time()-start >= (0.1*60)):
-                print("Rest time is over. Go work.")
+def stateMachine():
+    global STATE
+    global alarmIsOn
+    global workTimerStarted
+    global restTimerStarted
+    global euiGotAResponse
+    global euiAskAQuestion
 
-                alarmOn()
-                #alarmThread = threading.Thread(target=alarmOn, name="alarm")
-                #alarmThread.start()
-
-                insertUserData(False, (USER_SETTINGS['restOption'] != 1),
-                                    euiGotAResponse, USER_SETTINGS['restPeriod'])
-                #storeSession = threading.Thread(target=insertUserData, name="storeSesh",
-                #                    args=(True, (USER_SETTINGS['restOption'] != 1),
-                #                    euiGotAResponse, USER_SETTINGS['restPeriod']))
-                #storeSession.start()
-
-def waitForButtonsThread():
-    btnThread = threading.Thread(target=handleButtonPressed, name="Button")
-    btnThread.daemon = True
+    # start thread to always monitor & capture red button press
+    btnThread = threading.Thread(target=resetButtonThread)
     btnThread.start()
+
+    '''
+    # start thread to always monitor RESPOND_YES_BTN
+    btnThread = threading.Thread(target=yesButtonThread)
+    btnThread.start()
+
+    # start thread to always monitor RESPOND_NO_BTN
+    btnThread = threading.Thread(target=noButtonThread)
+    btnThread.start()
+    '''
+
+    while True:
+        if (STATE == "IDLE"):
+
+            # block while blue button is not pressed
+            while (buttonPressed(POMODORO_BTN)):
+                continue
+
+            # set up fields for user to start work session
+            STATE = "WORK"
+            workTimerStarted = time.time()
+            displayText("Time to start working! FIGHTING!")
+
+            # set work mode indicator
+            indicatorThread = threading.Thread(target=setWorkModeIndicator)
+            indicatorThread.start()
+
+        if (STATE == "WORK"):
+
+            # if duration of the work session is over
+            if (time.time()-workTimerStarted >= (USER_SETTINGS['workPeriod']*60)):
+                alarmOn()                   # turn alarms on
+                alarmIsOn = True
+                workTimerStarted = None     # stop work timer     
+
+                # block while blue button is not pressed && state is still WORK
+                while (buttonPressed(POMODORO_BTN) and STATE == "WORK"):
+                    continue
+
+                alarmOff()      # turn alarms off
+                alarmIsOn = False
+
+                '''
+                # ask user a question if there is one
+                euiAskAQuestion = (USER_SETTINGS['workOption'] != 1)
+
+                if (euiAskAQuestion):
+                    displayText(USER_SETTINGS['workPersonalized'])
+
+                # block while eui have not gotten a response
+                while (not euiGotAResponse):
+                    continue
+
+                if (userRespondYes):        # assuming "Yes" means user did as expected
+                    displayResponse(True)   # display encouraging response
+                else:                       # else user did not do as expected
+                    displayResponse(False)  # display a "try again" message
+                '''
+
+                # add work session to database
+                insertUserData(True, euiAskAQuestion,
+                                euiGotAResponse, USER_SETTINGS['workPeriod'])
+
+                '''
+                euiAskedAQuestion = False   # reset s.t. eui have not asked a question
+                euiGotAResponse = False
+                '''
+
+                # set up fields for user to start rest session
+                STATE = "REST"
+                restTimerStarted = time.time()
+
+                displayText("REST TIME :)")
+
+                # set rest mode indicator
+                indicatorThread = threading.Thread(target=setRestModeIndicator)
+                indicatorThread.start()
+        
+        if (STATE == "REST"):
+
+            # if duration of the rest session is over
+            if (time.time()-restTimerStarted >= (USER_SETTINGS['restPeriod']*60)):
+                alarmOn()                   # turn alarms on
+                alarmIsOn = True
+                restTimerStarted = None     # stop rest timer 
+
+                # block while blue button is not pressed && state is still REST
+                while (buttonPressed(POMODORO_BTN) and STATE == "REST"):
+                    continue
+
+                alarmOff()      # turn alarms off
+                alarmIsOn = False
+
+                '''
+                # ask user a question if there is one
+                euiAskAQuestion = (USER_SETTINGS['restOption'] != 1)
+
+                if (euiAskAQuestion):
+                    displayText(USER_SETTINGS['restPersonalized'])
+
+                # block while eui have not gotten a response
+                while (not euiGotAResponse):
+                    continue
+
+                if (userRespondYes):        # assuming "Yes" means user did as expected
+                    displayResponse(True)   # display encouraging response
+                else:                       # else user did not do as expected
+                    displayResponse(False)  # display a "try again" message
+                '''
+
+                # add rest session to database
+                insertUserData(False, euiAskAQuestion,
+                                    euiGotAResponse, USER_SETTINGS['restPeriod'])
+
+                '''
+                euiAskedAQuestion = False   # reset s.t. eui have not asked a question
+                euiGotAResponse = False
+                '''
+
+                # set up fields for user to start work session
+                STATE = "WORK"
+                workTimerStarted = time.time()
+
+                displayText("Time to get back to work!!")
+
+                # set work mode indicator
+                indicatorThread = threading.Thread(target=setWorkModeIndicator)
+                indicatorThread.start()
+
+def euiThread():
+    eui = threading.Thread(target=stateMachine)
+    eui.daemon = True
+    eui.start()
 
 
 ''' Run at start up '''
@@ -274,16 +325,22 @@ def setup():
     setupSound(SOUNDPIN)
     setupMotors(IN1, IN2, EN1, IN3, IN4, EN2)
     setupDisplay(RST)
-    setupBtn(START_POMODORO_SEQ)
-    setupBtn(STOP_ALARM_BTN)
+    setupBtn(RESET_BTN)
+    setupBtn(POMODORO_BTN)
+    '''
+    setupBtn(RESPOND_YES_BTN)
+    setupBtn(RESPOND_NO_BTN)
+    '''
 
 def runAtStartup():
     setup()
     makeSound(SOUNDPIN)
     displayMessageAtStartup()
-    waitForButtonsThread()
+    euiThread()
+
     while True:
         continue
+
 
 ''' OLED Display Functions '''
 
@@ -336,8 +393,6 @@ def displayResponse(encourageUser):     # encourageUser is a bool
 
 ''' Functions for alarms '''
 
-ALARM_PROCESSES = []
-
 def euiMove():
     while True:
         rightTurn(IN1, IN2, EN1, IN3, IN4, EN2)
@@ -348,39 +403,35 @@ def euiMove():
 
 def alarmOn():
     print("alarmOn begin:", threading.active_count())
+
     if (USER_SETTINGS['lightOption'] != 5):     # user wanted some sort of lights
-        #lightShow = multiprocessing.Process(target=LEDwave)
-        lightShow = threading.Thread(target=LEDwave, name="Light Show")
+        lightShow = threading.Thread(target=LEDwave)
         lightShow.start()
-        #ALARM_PROCESSES.append(lightShow)
 
     if (USER_SETTINGS['motionOption'] != 5):    # user wanted some sort of movement
-        #motorThread = multiprocessing.Process(target=euiMove)
-        motorThread = threading.Thread(target=euiMove, name="Eui Move")
+        motorThread = threading.Thread(target=euiMove)
         motorThread.start()
-        #ALARM_PROCESSES.append(motorThread)
 
     if (USER_SETTINGS['soundOption'] != 4):     # user wanted some sort of sound
-        #playSong = multiprocessing.Process(target=playMelody, args=(londonBridge, LBbeats, 0.3, SOUNDPIN))
-        playSong = threading.Thread(target=playMelody, name="Sound show", args=(londonBridge, LBbeats, 0.3, SOUNDPIN))
+        playSong = threading.Thread(target=playMelody, args=(londonBridge, LBbeats, 0.3, SOUNDPIN))
         playSong.start()
-        #ALARM_PROCESSES.append(playSong)
+
     print("alarmOn after:", threading.active_count())
 
 def alarmOff():
     print("alarmOff begin:", threading.active_count())
+
     if (USER_SETTINGS['lightOption'] != 5):     # user wanted some sort of lights
         turnOffLED()
 
     if (USER_SETTINGS['motionOption'] != 5):    # user wanted some sort of movement
         stopMotors(IN1, IN2, EN1, IN3, IN4, EN2)
 
-    #if (USER_SETTINGS['soundOption'] != 4):     # user wanted some sort of sound
-        #stopSound()
+    if (USER_SETTINGS['soundOption'] != 4):     # user wanted some sort of sound
+        stopSound()
 
-    #for process in ALARM_PROCESSES:
-    #    process.terminate() #terminate running thread
     print("alarmOff after:", threading.active_count())
+
 
 ''' Functions to Store Information to Database & Yaml '''
 
@@ -413,8 +464,7 @@ def storeCurrDayAndDate():
 
 def insertUserData(userDidWork, askedAQuestion,
                     userAnsweredQuestion, sessionDuration):
-    print("Inserting data")
-    print(askedAQuestion)
+    print("Inserting data...")
 
     # Form connection with the database
     try:
@@ -442,8 +492,8 @@ def insertUserData(userDidWork, askedAQuestion,
 
     cur.execute(insertStatement, (date, weekday, sessionDuration, completedTask, questionAnswered))
 
-    cur.close()
     conn.commit()
+    cur.close()
     conn.close()
 
 if __name__ == '__main__':
