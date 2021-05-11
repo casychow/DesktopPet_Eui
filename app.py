@@ -257,10 +257,9 @@ def stateMachine():
 
                 displayText("REST TIME :)")
 
-                # set rest mode indicator
-                indicatorThread = threading.Thread(target=setRestModeIndicator)
-                indicatorThread.start()
-        
+            else:   # work session isn't over
+                displayWorkModeIndicator()  # display work mode indicator
+
         if (STATE == "REST"):
 
             # if duration of the rest session is over
@@ -311,6 +310,9 @@ def stateMachine():
                 # set work mode indicator
                 indicatorThread = threading.Thread(target=setWorkModeIndicator)
                 indicatorThread.start()
+
+            else:   # rest session isn't over
+                displayRestModeIndicator()  # display rest mode indicator
 
 def euiThread():
     eui = threading.Thread(target=stateMachine)
