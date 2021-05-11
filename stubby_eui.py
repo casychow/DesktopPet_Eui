@@ -303,12 +303,13 @@ def buttonPressed(pin):
 	try:
 		while True:
 			print("Awaiting button press")
-			print("NOTE: ^C to stop button press function")
-			print()
 			btnPressed = GPIO.input(pin)
 			time.sleep(0.5)
 			if (btnPressed):
 				print("button is pressed")
+				return True
+			else:
+				return False
 	except KeyboardInterrupt:
 		print("\t^C was pressed")
 

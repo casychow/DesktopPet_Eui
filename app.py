@@ -104,59 +104,156 @@ IN4 = 0
 EN2 = 5
 
 # Pin for OLED display
-RST = 24
+RST = 26 #24
 
 # Pins for Buttons
-TIMER_BTN = 0
-STOP_ALARM_BTN = 0
+START_POMODORO_SEQ = 23 #red
+STOP_ALARM_BTN = 24 #blue
 
 # Pin for Sound
 SOUNDPIN = 12
+
 
 workTimerStarted = False
 restTimerStarted = False
 euiGotAResponse = False
 euiAskedQuestion = False
+pomodoroStarted = False
 
+start = 0
 
 ''' Run in the background '''
 
+def startPomodoroSeqThread():
+    global workTimerStarted
+    global restTimerStarted
+    global pomodoroStarted
+    global start
+
+    while True:
+        while (not buttonPressed(START_POMODORO_SEQ)):
+            continue
+
+        if (workTimerStarted and pomodoroStarted):
+            #if pomodoro and work session is both on, user is ending early
+            workTimerStarted = False
+            pomodoroStarted = False
+            displayText("Work session won't count! Ended session early...")
+        elif (restTimerStarted and pomodoroStarted):
+            #user is ending rest early - not going to count to consecutive pomodoro
+            restTimerStarted = False
+            pomodoroStarted = False
+            displayText("Rest session won't count! Ended session early...")
+        elif (not workTimerStarted and not pomodoroStarted):          # if work timer was not started
+            print("Pomodoro session has begun!")
+            start = time.time()             # start work timer
+            workTimerStarted = True         # mark as started work
+            pomodoroStarted = True
+
+def stopAlarmBtnThread():
+    global workTimerStarted
+    global restTimerStarted
+    global start
+
+    while True:
+        while (not buttonPressed(STOP_ALARM_BTN)):
+            continue
+        alarmOff()
+        print("Alarm off")
+        if (workTimerStarted):
+            workTimerStarted = False
+            restTimerStarted = True
+            time.sleep(0.5)
+            start = time.time()
+        elif (restTimerStarted):
+            restTimerStarted = False
+            workTimerStarted = True
+            time.sleep(0.5)
+            start = time.time()
+
 def handleButtonPressed():
     print("worker thread here <----")
+    '''
+    workTimerStarted = False
+    restTimerStarted = False
+    pomodoroStarted = False
+    euiGotAResponse = False
+    '''
+    global workTimerStarted
+    global restTimerStarted
+    global pomodoroStarted
+    global euiGotAResponse
+    global start
+
+    pomThread = threading.Thread(target=startPomodoroSeqThread, name="pom")
+    pomThread.start()
+
+    stopAlarmThread = threading.Thread(target=stopAlarmBtnThread, name="start_alarm")
+    stopAlarmThread.start()
+
     while True:
-        if (buttonPressed(TIMER_BTN)):          # if timer button is pressed
-            if (not workTimerStarted):          # if work timer was not started
+        '''
+        if (buttonPressed(START_POMODORO_SEQ)):          # if timer button is pressed
+            if (workTimerStarted and pomodoroStarted):
+                #if pomodoro and work session is both on, user is ending early
+                workTimerStarted = False
+                pomodoroStarted = False
+                displayText("Work session won't count! Ended session early...")
+            elif (restTimerStarted and pomodoroStarted):
+                #user is ending rest early - not going to count to consecutive pomodoro
+                restTimerStarted = False
+                pomodoroStarted = False
+                displayText("Rest session won't count! Ended session early...")
+            elif (not workTimerStarted and not pomodoroStarted):          # if work timer was not started
+                print("Pomodoro session has begun!")
                 start = time.time()             # start work timer
                 workTimerStarted = True         # mark as started work
-            elif (not restTimerStarted):        # else if rest timer was not started
-                start = time.time()             # start rest timer
-                restTimerStarted = True         # mark as started rest
-            elif (workTimerStarted):            # end work session early
-                workTimerStarted = False
-                displayText("Work session won't count! Ended session early...")
-            elif (restTimerStarted):            # end rest session early
-                restTimerStarted = False
-                displayText("Rest session won't count! Ended session early...")
+                pomodoroStarted = True
 
         if (buttonPressed(STOP_ALARM_BTN)):
             alarmOff()
+            print("Alarm off")
+            if (workTimerStarted):
+                workTimerStarted = False
+                restTimerStarted = True
+                time.sleep(0.5)
+            elif (restTimerStarted):
+                restTimerStarted = False
+                workTimerStarted = True
+                time.sleep(0.5)
+        '''
+
 
         # checks if timed session is complete (FOR NOW: assumes user does not answer question)
 
         if (workTimerStarted):
-            if (time.time()-start >= (USER_SETTINGS['workPeriod']*60)):
-                workTimerStarted = False
-                alarmOn()
-
-                insertUserData(True, (USER_SETTINGS['workOption'] != 1), 
+            #if (time.time()-start >= (USER_SETTINGS['workPeriod']*60)):
+            if (time.time()-start >= (0.1*60)):
+                print("Work time is over. Go rest.")
+                #alarmOn()
+                alarmThread = threading.Thread(target=alarmOn, name="alarm")
+                alarmThread.start()
+                insertUserData(True, (USER_SETTINGS['workOption'] != 1),
                                 euiGotAResponse, USER_SETTINGS['workPeriod'])
-        if (restTimerStarted):
-            if (time.time()-start >= (USER_SETTINGS['restPeriod']*60)):
-                restTimerStarted = False
-                alarmOn()
+                #storeSession = threading.Thread(target=insertUserData, name="storeSesh",
+                #                    args=(True, (USER_SETTINGS['workOption'] != 1),
+                #                    euiGotAResponse, USER_SETTINGS['workPeriod']))
+                #storeSession.start()
 
-                insertUserData(True, (USER_SETTINGS['restOption'] != 1), 
+        if (restTimerStarted):
+            #if (time.time()-start >= (USER_SETTINGS['restPeriod']*60)):
+            print(time.time()-start)
+            if (time.time()-start >= (0.1*60)):
+                print("Rest time is over. Go work.")
+                #alarmOn()
+                alarmThread = threading.Thread(target=alarmOn, name="alarm")
+                alarmThread.start()
+                insertUserData(False, (USER_SETTINGS['restOption'] != 1),
                                     euiGotAResponse, USER_SETTINGS['restPeriod'])
+                #storeSession = threading.Thread(target=insertUserData, name="storeSesh",
+                #                    args=(True, (USER_SETTINGS['restOption'] != 1),
+                #                    euiGotAResponse, USER_SETTINGS['restPeriod']))
+                #storeSession.start()
 
 def waitForButtonsThread():
     btnThread = threading.Thread(target=handleButtonPressed, name="Button")
@@ -171,13 +268,16 @@ def setup():
     setupSound(SOUNDPIN)
     setupMotors(IN1, IN2, EN1, IN3, IN4, EN2)
     setupDisplay(RST)
+    setupBtn(START_POMODORO_SEQ)
+    setupBtn(STOP_ALARM_BTN)
 
 def runAtStartup():
     setup()
     makeSound(SOUNDPIN)
     displayMessageAtStartup()
     waitForButtonsThread()
-
+    while True:
+        continue
 
 ''' OLED Display Functions '''
 
@@ -292,6 +392,8 @@ def storeCurrDayAndDate():
 
 def insertUserData(userDidWork, askedAQuestion,
                     userAnsweredQuestion, sessionDuration):
+    print("Inserting data")
+    print(askedAQuestion)
     cur = conn.cursor()
 
     insertStatement = "INSERT INTO PomodoroStats (Date, Weekday, Duration, Completed_Task, Question_Answered) VALUES (?,?,?,?,?)"
@@ -318,9 +420,11 @@ if __name__ == '__main__':
     try:
         runAtStartup()
         #test button press here
+        '''
         alarmOn()
         time.sleep(5)
         alarmOff()
+        '''
     except KeyboardInterrupt:
         stopMotors(IN1, IN2, EN1, IN3, IN4, EN2)
         turnOffLED()

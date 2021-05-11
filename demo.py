@@ -54,6 +54,8 @@ EN2 = 5
 RST = 26 #24
 text = "Hi USER. My name is EUI and my job is to keep you accountable in your work and home life."
 
+#stopMotors(IN1, IN2, EN1, IN3, IN4, EN2)
+'''
 info()
 workTime(True)
 breakTime(True)
@@ -76,15 +78,15 @@ setupSound(SOUNDPIN)
 makeSound(SOUNDPIN)
 sleep(2)
 playMelody(londonBridge, LBbeats, 0.3, SOUNDPIN)
-
+'''
 motorTest(IN1, IN2, EN1, IN3, IN4, EN2)
 sleep(2)
-rightTurn(IN1, IN2, EN1, IN3, IN4, EN2)
-sleep(2)
-leftTurn(IN1, IN2, EN1, IN3, IN4, EN2)
-sleep(2)
+#rightTurn(IN1, IN2, EN1, IN3, IN4, EN2)
+#sleep(2)
+#leftTurn(IN1, IN2, EN1, IN3, IN4, EN2)
+#sleep(2)
 stopMotors(IN1, IN2, EN1, IN3, IN4, EN2)
-
+'''
 readDist(0)
 #registerTap()
 #probably won't get to this - used to answer questions on the OLED display
@@ -98,5 +100,5 @@ displayImage(disp)
 sleep(1)
 displayText(text, disp)
 displayOff(disp)
-
+'''
 GPIO.cleanup()
