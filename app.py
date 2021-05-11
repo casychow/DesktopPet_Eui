@@ -82,8 +82,11 @@ londonBridge = [g[2], a[2], g[2], f[2], e[2], f[2], g[2], d[2],
 LBbeats = [2, 0.5, 1, 1, 1, 1, 2, 1, 1, 2, 1, 1, 2, 2, 0.5, 1,
                 1, 1, 1, 2, 2, 2, 1, 1]
 
+# Pin for Sound
+SOUNDPIN = 12
+
 # Pins for lights
-DATA = 21
+DATA = SOUNDPIN
 STOR = 13
 SHIFT = 18
 NSHIFT = 16
@@ -104,9 +107,6 @@ RESET_BTN = 23 #red
 POMODORO_BTN = 24 #blue
 RESPOND_YES_BTN = None
 RESPOND_NO_BTN = None
-
-# Pin for Sound
-SOUNDPIN = 12
 
 ''' State machine functions '''
 
@@ -154,23 +154,26 @@ def resetButtonThread():
 
     while True:
         # if red button is pressed
-        if (buttonPressed(RESET_BTN) and STATE != "IDLE"):
+        if (buttonPressed(RESET_BTN)): #STATE != IDLE
+            print("red pressed!")
+            STATE = "IDLE"
+            workTimerStarted = None
+            restTimerStarted = None
 
             displayText("Session ended early... this won't count!")
 
             # if alarm is on (i.e. pressed red button while alarm is on)
             if (alarmIsOn):
                 alarmOff()
+                alarmIsOn = False
 
             # reset all fields back to defaults
-            STATE = "IDLE"
-            alarmIsOn = False
-            workTimerStarted = None
-            restTimerStarted = None
             euiGotAResponse = False
             euiAskAQuestion = False
             userRespondYes = False
             userRespondNo = False
+
+            time.sleep(1)
 
 def stateMachine():
     global STATE
@@ -196,9 +199,9 @@ def stateMachine():
 
     while True:
         if (STATE == "IDLE"):
-
+            print("in IDLE...")
             # block while blue button is not pressed
-            while (buttonPressed(POMODORO_BTN)):
+            while (not buttonPressed(POMODORO_BTN)):
                 continue
 
             # set up fields for user to start work session
@@ -206,20 +209,17 @@ def stateMachine():
             workTimerStarted = time.time()
             displayText("Time to start working! FIGHTING!")
 
-            # set work mode indicator
-            indicatorThread = threading.Thread(target=setWorkModeIndicator)
-            indicatorThread.start()
-
         if (STATE == "WORK"):
 
             # if duration of the work session is over
-            if (time.time()-workTimerStarted >= (USER_SETTINGS['workPeriod']*60)):
+#            if (time.time()-workTimerStarted >= (USER_SETTINGS['workPeriod']*60)):
+            if (time.time()-workTimerStarted >= (0.1*60)):
                 alarmOn()                   # turn alarms on
                 alarmIsOn = True
-                workTimerStarted = None     # stop work timer     
+                workTimerStarted = None     # stop work timer
 
                 # block while blue button is not pressed && state is still WORK
-                while (buttonPressed(POMODORO_BTN) and STATE == "WORK"):
+                while (not buttonPressed(POMODORO_BTN) and STATE == "WORK"):
                     continue
 
                 alarmOff()      # turn alarms off
@@ -263,13 +263,14 @@ def stateMachine():
         if (STATE == "REST"):
 
             # if duration of the rest session is over
-            if (time.time()-restTimerStarted >= (USER_SETTINGS['restPeriod']*60)):
+#            if (time.time()-restTimerStarted >= (USER_SETTINGS['restPeriod']*60)):
+            if (time.time()-restTimerStarted >= (0.1*60)):
                 alarmOn()                   # turn alarms on
                 alarmIsOn = True
-                restTimerStarted = None     # stop rest timer 
+                restTimerStarted = None     # stop rest timer
 
                 # block while blue button is not pressed && state is still REST
-                while (buttonPressed(POMODORO_BTN) and STATE == "REST"):
+                while (not buttonPressed(POMODORO_BTN) and STATE == "REST"):
                     continue
 
                 alarmOff()      # turn alarms off
@@ -306,10 +307,6 @@ def stateMachine():
                 workTimerStarted = time.time()
 
                 displayText("Time to get back to work!!")
-
-                # set work mode indicator
-                indicatorThread = threading.Thread(target=setWorkModeIndicator)
-                indicatorThread.start()
 
             else:   # rest session isn't over
                 displayRestModeIndicator()  # display rest mode indicator
@@ -401,19 +398,20 @@ def euiMove():
         time.sleep(0.5)
         leftTurn(IN1, IN2, EN1, IN3, IN4, EN2)
         time.sleep(0.5)
-        break
+        #break
 
 def alarmOn():
     print("alarmOn begin:", threading.active_count())
 
+
     if (USER_SETTINGS['lightOption'] != 5):     # user wanted some sort of lights
         lightShow = threading.Thread(target=LEDwave)
         lightShow.start()
-
+    '''
     if (USER_SETTINGS['motionOption'] != 5):    # user wanted some sort of movement
         motorThread = threading.Thread(target=euiMove)
         motorThread.start()
-
+    '''
     if (USER_SETTINGS['soundOption'] != 4):     # user wanted some sort of sound
         playSong = threading.Thread(target=playMelody, args=(londonBridge, LBbeats, 0.3, SOUNDPIN))
         playSong.start()
@@ -425,10 +423,10 @@ def alarmOff():
 
     if (USER_SETTINGS['lightOption'] != 5):     # user wanted some sort of lights
         turnOffLED()
-
+    '''
     if (USER_SETTINGS['motionOption'] != 5):    # user wanted some sort of movement
         stopMotors(IN1, IN2, EN1, IN3, IN4, EN2)
-
+    '''
     if (USER_SETTINGS['soundOption'] != 4):     # user wanted some sort of sound
         stopSound()
 

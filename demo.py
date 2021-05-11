@@ -33,18 +33,18 @@ LBbeats = [2, 0.5, 1, 1, 1, 1, 2, 1, 1, 2, 1, 1, 2, 2, 0.5, 1,
 GPIO.setwarnings(False)
 GPIO.setmode(GPIO.BCM)
 SOUNDPIN = 12
-TIMERPIN = 23 #17
+TIMERPIN = 23
 BTNPIN = 24 #pin for the general button
 
 #LIGHTS
-DATA = 21
+DATA = SOUNDPIN #because we are sharing the same PWM pin as the SOUNDPIN #previously 21
 STOR = 13
 SHIFT = 18
 NSHIFT = 16
 
 #MOTORS
-IN1 = 27 #2
-IN2 = 22 #3
+IN1 = 27
+IN2 = 22
 EN1 = 4
 IN3 = 1
 IN4 = 0
@@ -54,18 +54,18 @@ EN2 = 5
 RST = 26 #24
 text = "Hi USER. My name is EUI and my job is to keep you accountable in your work and home life."
 
-#stopMotors(IN1, IN2, EN1, IN3, IN4, EN2)
-'''
-info()
-workTime(True)
-breakTime(True)
 
-#setupBtnForTimer(TIMERPIN)
+info()
+'''
 setupBtn(TIMERPIN)
 waitForBtnPress(TIMERPIN, 10)
 
+setupSound(SOUNDPIN)
+makeSound(SOUNDPIN)
+sleep(2)
+playMelody(londonBridge, LBbeats, 0.3, SOUNDPIN)
+
 setupLED(DATA, STOR, SHIFT, NSHIFT)
-sendByte()
 turnOffLED()
 sleep(1)
 turnOnLED()
@@ -73,20 +73,26 @@ sleep(1)
 turnOffLED()
 sleep(1)
 LEDwave()
+turnOffLED()
 
-setupSound(SOUNDPIN)
-makeSound(SOUNDPIN)
-sleep(2)
-playMelody(londonBridge, LBbeats, 0.3, SOUNDPIN)
+print("now working in demo")
+displayWorkModeIndicator(DATA, STOR, SHIFT)
+sleep(1)
+print("now resting in demo")
+displayRestModeIndicator(DATA, STOR, SHIFT)
+sleep(1)
+print("now finished with pomodoro in demo")
+turnOffLED()
 '''
+setupMotors(IN1, IN2, EN1, IN3, IN4, EN2)
 motorTest(IN1, IN2, EN1, IN3, IN4, EN2)
 sleep(2)
-#rightTurn(IN1, IN2, EN1, IN3, IN4, EN2)
-#sleep(2)
-#leftTurn(IN1, IN2, EN1, IN3, IN4, EN2)
-#sleep(2)
+rightTurn(IN1, IN2, EN1, IN3, IN4, EN2)
+sleep(2)
+leftTurn(IN1, IN2, EN1, IN3, IN4, EN2)
+sleep(2)
 stopMotors(IN1, IN2, EN1, IN3, IN4, EN2)
-'''
+
 readDist(0)
 #registerTap()
 #probably won't get to this - used to answer questions on the OLED display
@@ -100,5 +106,5 @@ displayImage(disp)
 sleep(1)
 displayText(text, disp)
 displayOff(disp)
-'''
+
 GPIO.cleanup()

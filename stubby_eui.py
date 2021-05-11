@@ -6,36 +6,13 @@ from PIL import Image
 from PIL import ImageDraw
 from PIL import ImageFont
 
-#PWM = -1
+keepSoundOn = None
 
 def info():
 	'''Prints a basic library description'''
 	print("Software library for Eui.")
 
 ## timers ##
-
-def workTime(testing=False, wDuration=25):
-	print("Start work time!")
-
-	if (testing):			# for testing purposes just wait 0.5s
-		time.sleep(0.5)
-	else:
-		time.sleep(wDuration*60)	# 25min of focused work time
-
-	print("Time for a break!")
-
-def breakTime(testing=False, bDuration=5):
-	print("It's break time!")
-
-	if (testing):			# for testing purposes just wait 0.5s
-		time.sleep(0.5)
-	else:
-		time.sleep(bDuration*60)	# 5 min of break
-
-	print("Break is over")
-
-#def setupBtnForTimer(timerPin):
-	#deleted - need to tell partner
 
 def setupBtn(pin):
 	print("setupBtn for pin:", pin)
@@ -77,7 +54,7 @@ def waitForBtnPress(timerPin, duration):
 
 ## lights ##
 
-def setupLED(DATA, STOR, SHIFT, NSHIFT):
+def setupLED(DATA=12, STOR=13, SHIFT=18, NSHIFT=16):
 	GPIO.setmode(GPIO.BCM)
 	GPIO.setup(DATA, GPIO.OUT)
 	GPIO.setup(STOR, GPIO.OUT)
@@ -86,7 +63,7 @@ def setupLED(DATA, STOR, SHIFT, NSHIFT):
 	GPIO.output(NSHIFT, GPIO.LOW) #clear shift register
 	GPIO.output(NSHIFT, GPIO.HIGH) #don't clear shift register yet
 
-def turnOnLED(DATA=21, STOR=13, SHIFT=18):
+def turnOnLED(DATA=12, STOR=13, SHIFT=18): #DATA was previously 21
 	print("LEDs turn on")
 	for i in range(0,8):
 		GPIO.output(DATA, GPIO.HIGH)
@@ -99,9 +76,9 @@ def turnOnLED(DATA=21, STOR=13, SHIFT=18):
 		#time.sleep(0.1)
 		GPIO.output(STOR, GPIO.LOW)
 
-def turnOffLED(DATA=21, STOR=13, SHIFT=18):
+def turnOffLED(DATA=12, STOR=13, SHIFT=18):
 	print("LEDs turn off")
-	for i in range(0,9):
+	for i in range(0,8):
 		GPIO.output(DATA, GPIO.LOW)
 		#time.sleep(0.1)
 		GPIO.output(SHIFT, GPIO.HIGH)
@@ -112,7 +89,7 @@ def turnOffLED(DATA=21, STOR=13, SHIFT=18):
 		#time.sleep(0.1)
 		GPIO.output(STOR, GPIO.LOW)
 
-def LEDwave(DATA=21, STOR=13, SHIFT=18):
+def LEDwave(DATA=12, STOR=13, SHIFT=18):
 	try:
 		print("performing LED wave now. Press ^C to stop")
 		while True:
@@ -137,34 +114,37 @@ def LEDwave(DATA=21, STOR=13, SHIFT=18):
 				GPIO.output(STOR, GPIO.HIGH)
 				time.sleep(0.1)
 				GPIO.output(STOR, GPIO.LOW)
-				break
 	except KeyboardInterrupt:
-		turnOffLED()
+		turnOffLED(DATA)
 		time.sleep(0.1)
+
+def displayWorkModeIndicator(DATA=12, STOR=13, SHIFT=18):
+	#prob need timer to see how long to continue being in this state
+	#DATA is also soundPin because we are using the same PWM pin for both
+	PWM = GPIO.PWM(DATA, 100)
+	PWM.start(100)
+	#LED wave 2.0 to signal we are in work period - only 1 LED
+	sendByte(0b01000010)
+
+def displayRestModeIndicator(DATA=12, STOR=13, SHIFT=18):
+	#GPIO.output(DATA, GPIO.OUT)
+	PWM = GPIO.PWM(DATA, 100)
+	PWM.start(100)
+	#dim/flash all LEDs to signal we are in rest period
+	sendByte(0b10111101)
 
 def changeLEDColor():
 	print("LEDs change color")
 
-def sendByte(val=0b10000001, DATA=21, STOR=13, SHIFT=18):
-	print("send byte to shift register")
-	'''
-	for ind, bit in enumerate(bin(val)):
-		if (ind<2):
-			continue
-		elif (bit==1):
-			GPIO.output(DATA, GPIO.HIGH)
-			print("yes equal")
-		else:
-			GPIO.output(DATA, GPIO.LOW)
-		time.sleep(0.1)
+def sendByte(val, DATA=12, STOR=13, SHIFT=18):
+
+	GPIO.output(STOR, GPIO.LOW)
+	for x in range(0,8):
+		GPIO.output(DATA, (val >> x) & 1)
 		GPIO.output(SHIFT, GPIO.HIGH)
-		time.sleep(0.1)
 		GPIO.output(SHIFT, GPIO.LOW)
-		GPIO.output(DATA, GPIO.LOW)
-		GPIO.output(STOR, GPIO.HIGH)
-		time.sleep(0.1)
-		GPIO.output(STOR, GPIO.LOW)
-	'''
+	GPIO.output(STOR, GPIO.HIGH)
+
 
 ## sound ##
 
@@ -173,8 +153,10 @@ def setupSound(soundPin):
 	GPIO.setmode(GPIO.BCM)
 	GPIO.setup(soundPin, GPIO.OUT)
 
-#def stopSound():
-#	PWM.stop()
+def stopSound():
+	global keepSoundOn
+	if (keepSoundOn):
+		keepSoundOn = False
 
 def makeSound(soundPin):
 	print("piezo make a sound")
@@ -186,18 +168,23 @@ def makeSound(soundPin):
 
 def playMelody(song, beat, tempo, soundPin):
 	print("piezo plays a song")
-	return
+	global keepSoundOn
+	keepSoundOn = True
 
 	PWM = GPIO.PWM(soundPin, 100)
 	PWM.start(50)
 
 	for i in range(0, len(song)):
+		if (not keepSoundOn):
+			break
 		PWM.ChangeFrequency(song[i])
 		time.sleep(beat[i]*tempo)
 
 	PWM.ChangeDutyCycle(0)
 	PWM.stop()
-	#stopSound()
+	keepSoundOn = None
+	GPIO.cleanup(soundPin)
+	GPIO.setup(soundPin, GPIO.OUT)
 
 ## movements ##
 
@@ -211,20 +198,22 @@ def setupMotors(IN1, IN2, EN1, IN3, IN4, EN2):
 
 def forward(IN1, IN2, EN1, IN3, IN4, EN2):
 	print("\tFORWARD MOTION")
+	GPIO.output(EN1, GPIO.HIGH)
+	GPIO.output(EN2, GPIO.HIGH)
 	GPIO.output(IN1, GPIO.HIGH)
 	GPIO.output(IN2, GPIO.LOW)
-	GPIO.output(EN1, GPIO.HIGH)
+	#GPIO.output(EN1, GPIO.HIGH)
 	GPIO.output(IN3, GPIO.HIGH)
-	GPIO.output(IN4, GPIO.LOW)
-	GPIO.output(EN2, GPIO.HIGH)
+	#GPIO.output(IN4, GPIO.LOW)
+	#GPIO.output(EN2, GPIO.HIGH)
 
 def backward(IN1, IN2, EN1, IN3, IN4, EN2):
 	print("\tBACKWARD MOTION")
 	GPIO.output(IN1, GPIO.LOW)
 	GPIO.output(IN2, GPIO.HIGH)
 	GPIO.output(EN1, GPIO.HIGH)
-	GPIO.output(IN3, GPIO.LOW)
-	GPIO.output(IN4, GPIO.HIGH)
+	GPIO.output(IN3, GPIO.HIGH)
+	GPIO.output(IN4, GPIO.LOW)
 	GPIO.output(EN2, GPIO.HIGH)
 
 def stopMotors(IN1, IN2, EN1, IN3, IN4, EN2):
@@ -234,13 +223,14 @@ def stopMotors(IN1, IN2, EN1, IN3, IN4, EN2):
 
 def motorTest(IN1, IN2, EN1, IN3, IN4, EN2):
 	print("power motors on")
-
+	'''
 	GPIO.setup(IN1, GPIO.OUT)
 	GPIO.setup(IN2, GPIO.OUT)
 	GPIO.setup(EN1, GPIO.OUT)
 	GPIO.setup(IN3, GPIO.OUT)
 	GPIO.setup(IN4, GPIO.OUT)
 	GPIO.setup(EN2, GPIO.OUT)
+	'''
 
 	forward(IN1, IN2, EN1, IN3, IN4, EN2)
 	time.sleep(2)
@@ -260,8 +250,8 @@ def leftTurn(IN1, IN2, EN1, IN3, IN4, EN2):
 def rightTurn(IN1, IN2, EN1, IN3, IN4, EN2):
 	print("make right turn")
 	GPIO.output(EN1, GPIO.LOW)
-	GPIO.output(IN3, GPIO.HIGH)
-	GPIO.output(IN4, GPIO.LOW)
+	GPIO.output(IN3, GPIO.LOW)
+	GPIO.output(IN4, GPIO.HIGH)
 	GPIO.output(EN2, GPIO.HIGH)
 
 ## sensors ##
@@ -304,7 +294,7 @@ def registerTap():
 def buttonPressed(pin):
 	try:
 		while True:
-			print("Awaiting button press")
+			#print("Awaiting button press")
 			btnPressed = GPIO.input(pin)
 			time.sleep(0.5)
 			if (btnPressed):
