@@ -34,10 +34,13 @@ def breakTime(testing=False, bDuration=5):
 
 	print("Break is over")
 
-def setupBtnForTimer(timerPin): #originally without any params
-	print("in setupBtnForTimer")
+#def setupBtnForTimer(timerPin):
+	#deleted - need to tell partner
+
+def setupBtn(pin):
+	print("setupBtn for pin:", pin)
 	GPIO.setmode(GPIO.BCM)
-	GPIO.setup(timerPin, GPIO.IN)
+	GPIO.setup(pin, GPIO.IN)
 
 def waitForBtnPress(timerPin, duration):
 	timerRunning = False    # timer is initially not running
@@ -297,13 +300,17 @@ def registerTap():
 	print("gets a signal from linear softpot")
 
 def buttonPressed(pin):
-	'''
 	try:
 		while True:
-			print("button is pressed")
+			print("Awaiting button press")
+			print("NOTE: ^C to stop button press function")
+			print()
+			btnPressed = GPIO.input(pin)
+			time.sleep(0.5)
+			if (btnPressed):
+				print("button is pressed")
 	except KeyboardInterrupt:
 		print("\t^C was pressed")
-	'''
 
 ## display ##
 

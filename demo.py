@@ -33,7 +33,8 @@ LBbeats = [2, 0.5, 1, 1, 1, 1, 2, 1, 1, 2, 1, 1, 2, 2, 0.5, 1,
 GPIO.setwarnings(False)
 GPIO.setmode(GPIO.BCM)
 SOUNDPIN = 12
-TIMERPIN = 17
+TIMERPIN = 23 #17
+BTNPIN = 24 #pin for the general button
 
 #LIGHTS
 DATA = 21
@@ -51,15 +52,14 @@ EN2 = 5
 
 #DISPLAY
 RST = 26 #24
-text = "cassandra was here - bleep, blap, bloop :P"
-
+text = "Hi USER. My name is EUI and my job is to keep you accountable in your work and home life."
 
 info()
-'''
 workTime(True)
 breakTime(True)
 
-setupBtnForTimer(TIMERPIN)
+#setupBtnForTimer(TIMERPIN)
+setupBtn(TIMERPIN)
 waitForBtnPress(TIMERPIN, 10)
 
 setupLED(DATA, STOR, SHIFT, NSHIFT)
@@ -76,7 +76,7 @@ setupSound(SOUNDPIN)
 makeSound(SOUNDPIN)
 sleep(2)
 playMelody(londonBridge, LBbeats, 0.3, SOUNDPIN)
-'''
+
 motorTest(IN1, IN2, EN1, IN3, IN4, EN2)
 sleep(2)
 rightTurn(IN1, IN2, EN1, IN3, IN4, EN2)
@@ -88,9 +88,8 @@ stopMotors(IN1, IN2, EN1, IN3, IN4, EN2)
 readDist(0)
 #registerTap()
 #probably won't get to this - used to answer questions on the OLED display
-
-#buttonPressed()
-#probably won't get to this - mute sounds
+setupBtn(BTNPIN)
+buttonPressed(BTNPIN)
 
 disp = setupDisplay(RST)
 displayOn(disp)
