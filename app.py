@@ -54,12 +54,6 @@ with open(USER_INFO_FILE) as file:
 EUI_STATS_FILE = "eui_UI/sample_eui_stats.db"      # using sample/toy database file
 # EUI_STATS_FILE = "/eui_UI/eui_stats.db"             # actual database file
 
-# Form connection with the database
-try:
-    conn = sqlite3.connect(EUI_STATS_FILE)
-except Error as e:
-    print(e)
-
 # for playMelody() -- London Bridge
 
 c = [32, 65, 131, 262, 523]
@@ -131,7 +125,7 @@ def startPomodoroSeqThread():
     global start
 
     while True:
-        while (not buttonPressed(START_POMODORO_SEQ)):
+        while (not buttonPressed(START_POMODORO_SEQ)):  # while button not pressed
             continue
 
         if (workTimerStarted and pomodoroStarted):
@@ -156,10 +150,12 @@ def stopAlarmBtnThread():
     global start
 
     while True:
-        while (not buttonPressed(STOP_ALARM_BTN)):
+        while (not buttonPressed(STOP_ALARM_BTN)):  # while button not pressed
             continue
+
         alarmOff()
         print("Alarm off")
+
         if (workTimerStarted):
             workTimerStarted = False
             restTimerStarted = True
@@ -230,9 +226,11 @@ def handleButtonPressed():
             #if (time.time()-start >= (USER_SETTINGS['workPeriod']*60)):
             if (time.time()-start >= (0.1*60)):
                 print("Work time is over. Go rest.")
+
                 #alarmOn()
                 alarmThread = threading.Thread(target=alarmOn, name="alarm")
                 alarmThread.start()
+
                 insertUserData(True, (USER_SETTINGS['workOption'] != 1),
                                 euiGotAResponse, USER_SETTINGS['workPeriod'])
                 #storeSession = threading.Thread(target=insertUserData, name="storeSesh",
@@ -243,11 +241,14 @@ def handleButtonPressed():
         if (restTimerStarted):
             #if (time.time()-start >= (USER_SETTINGS['restPeriod']*60)):
             print(time.time()-start)
+
             if (time.time()-start >= (0.1*60)):
                 print("Rest time is over. Go work.")
+
                 #alarmOn()
                 alarmThread = threading.Thread(target=alarmOn, name="alarm")
                 alarmThread.start()
+
                 insertUserData(False, (USER_SETTINGS['restOption'] != 1),
                                     euiGotAResponse, USER_SETTINGS['restPeriod'])
                 #storeSession = threading.Thread(target=insertUserData, name="storeSesh",
@@ -282,10 +283,20 @@ def runAtStartup():
 ''' OLED Display Functions '''
 
 def countPomodoros(weekday):
+
+    # Form connection with the database
+    try:
+        conn = sqlite3.connect(EUI_STATS_FILE)
+    except Error as e:
+        print(e)
+
     cur = conn.cursor()
     cur.execute("SELECT * FROM pomodoroStats WHERE Weekday='" + weekday + "'")
     query = cur.fetchall()
+
     cur.close()
+    conn.close()
+
     return len(query)//2, query    # one pomodoro = one work period + one break period
 
 def displayMessageAtStartup():
@@ -394,6 +405,13 @@ def insertUserData(userDidWork, askedAQuestion,
                     userAnsweredQuestion, sessionDuration):
     print("Inserting data")
     print(askedAQuestion)
+
+    # Form connection with the database
+    try:
+        conn = sqlite3.connect(EUI_STATS_FILE)
+    except Error as e:
+        print(e)
+
     cur = conn.cursor()
 
     insertStatement = "INSERT INTO PomodoroStats (Date, Weekday, Duration, Completed_Task, Question_Answered) VALUES (?,?,?,?,?)"
@@ -413,8 +431,10 @@ def insertUserData(userDidWork, askedAQuestion,
     date = today[1]
 
     cur.execute(insertStatement, (date, weekday, sessionDuration, completedTask, questionAnswered))
-    conn.commit()
+
     cur.close()
+    conn.commit()
+    conn.close()
 
 if __name__ == '__main__':
     try:
