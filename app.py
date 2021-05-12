@@ -213,6 +213,7 @@ def stateMachine():
             with STATELOCK:
                 STATE = "WORK"
                 workTimerStarted = time.time()
+                displayWorkModeIndicator(DATA)
                 displayText("Time to start working! FIGHTING!")
 
         if (STATE == "WORK"):
@@ -225,6 +226,7 @@ def stateMachine():
 
                     with STATELOCK:
                         if (STATE == "WORK"):
+                            turnOffLED()                # turn off indicator lights
                             alarmOn()                   # turn alarms on
                             alarmIsOn = True
                             workTimerStarted = None     # stop work timer
@@ -268,6 +270,7 @@ def stateMachine():
                             # set up fields for user to start rest session
                             STATE = "REST"
                             restTimerStarted = time.time()
+                            displayRestModeIndicator(DATA)
 
                             displayText("REST TIME :)")
 
@@ -283,9 +286,11 @@ def stateMachine():
                 if (time.time()-restTimerStarted >= (0.1*60)):
                     with STATELOCK:
                         if (STATE == "REST"):
+                            turnOffLED()                # turn off indicator lights
                             alarmOn()                   # turn alarms on
                             alarmIsOn = True
                             restTimerStarted = None     # stop rest timer
+                            restIndicatorOn = False     # stop lights
 
                     '''
                         # ask user a question if there is one
@@ -325,6 +330,7 @@ def stateMachine():
                             # set up fields for user to start work session
                             STATE = "WORK"
                             workTimerStarted = time.time()
+                            displayWorkModeIndicator(DATA)
 
                             displayText("Time to get back to work!!")
 
