@@ -54,7 +54,7 @@ def waitForBtnPress(timerPin, duration):
 
 ## lights ##
 
-def setupLED(DATA=12, STOR=13, SHIFT=18, NSHIFT=16):
+def setupLED(DATA=21, STOR=13, SHIFT=18, NSHIFT=16):
 	GPIO.setmode(GPIO.BCM)
 	GPIO.setup(DATA, GPIO.OUT)
 	GPIO.setup(STOR, GPIO.OUT)
@@ -63,7 +63,7 @@ def setupLED(DATA=12, STOR=13, SHIFT=18, NSHIFT=16):
 	GPIO.output(NSHIFT, GPIO.LOW) #clear shift register
 	GPIO.output(NSHIFT, GPIO.HIGH) #don't clear shift register yet
 
-def turnOnLED(DATA=12, STOR=13, SHIFT=18): #DATA was previously 21
+def turnOnLED(DATA=21, STOR=13, SHIFT=18): #DATA was previously 21
 	print("LEDs turn on")
 	for i in range(0,8):
 		GPIO.output(DATA, GPIO.HIGH)
@@ -76,7 +76,7 @@ def turnOnLED(DATA=12, STOR=13, SHIFT=18): #DATA was previously 21
 		#time.sleep(0.1)
 		GPIO.output(STOR, GPIO.LOW)
 
-def turnOffLED(DATA=12, STOR=13, SHIFT=18):
+def turnOffLED(DATA=21, STOR=13, SHIFT=18):
 	print("LEDs turn off")
 	for i in range(0,8):
 		GPIO.output(DATA, GPIO.LOW)
@@ -89,7 +89,7 @@ def turnOffLED(DATA=12, STOR=13, SHIFT=18):
 		#time.sleep(0.1)
 		GPIO.output(STOR, GPIO.LOW)
 
-def LEDwave(DATA=12, STOR=13, SHIFT=18):
+def LEDwave(DATA=21, STOR=13, SHIFT=18):
 	try:
 		print("performing LED wave now. Press ^C to stop")
 		while True:
@@ -118,7 +118,7 @@ def LEDwave(DATA=12, STOR=13, SHIFT=18):
 		turnOffLED(DATA)
 		time.sleep(0.1)
 
-def displayWorkModeIndicator(DATA=12, STOR=13, SHIFT=18):
+def displayWorkModeIndicator(DATA=21, STOR=13, SHIFT=18):
 	#prob need timer to see how long to continue being in this state
 	#DATA is also soundPin because we are using the same PWM pin for both
 	PWM = GPIO.PWM(DATA, 100)
@@ -126,7 +126,7 @@ def displayWorkModeIndicator(DATA=12, STOR=13, SHIFT=18):
 	#LED wave 2.0 to signal we are in work period - only 1 LED
 	sendByte(0b01000010)
 
-def displayRestModeIndicator(DATA=12, STOR=13, SHIFT=18):
+def displayRestModeIndicator(DATA=21, STOR=13, SHIFT=18):
 	#GPIO.output(DATA, GPIO.OUT)
 	PWM = GPIO.PWM(DATA, 100)
 	PWM.start(100)
@@ -136,7 +136,7 @@ def displayRestModeIndicator(DATA=12, STOR=13, SHIFT=18):
 def changeLEDColor():
 	print("LEDs change color")
 
-def sendByte(val, DATA=12, STOR=13, SHIFT=18):
+def sendByte(val, DATA=21, STOR=13, SHIFT=18):
 
 	GPIO.output(STOR, GPIO.LOW)
 	for x in range(0,8):

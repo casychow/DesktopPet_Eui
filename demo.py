@@ -56,7 +56,7 @@ text = "Hi USER. My name is EUI and my job is to keep you accountable."
 
 
 info()
-'''
+
 setupBtn(TIMERPIN)
 waitForBtnPress(TIMERPIN, 10)
 
@@ -75,24 +75,24 @@ sleep(1)
 LEDwave()
 turnOffLED()
 
-print("now working in demo")
+print("now working")
 displayWorkModeIndicator(DATA, STOR, SHIFT)
 sleep(1)
-print("now resting in demo")
+print("now resting")
 displayRestModeIndicator(DATA, STOR, SHIFT)
 sleep(1)
 print("now finished with pomodoro in demo")
 turnOffLED()
-'''
+
 setupMotors(IN1, IN2, EN1, IN3, IN4, EN2)
-'''
+
 motorTest(IN1, IN2, EN1, IN3, IN4, EN2)
 sleep(2)
 rightTurn(IN1, IN2, EN1, IN3, IN4, EN2)
 sleep(2)
 leftTurn(IN1, IN2, EN1, IN3, IN4, EN2)
 sleep(2)
-'''
+
 stopMotors(IN1, IN2, EN1, IN3, IN4, EN2)
 
 #readDist(0)
