@@ -227,6 +227,7 @@ def stateMachine():
                     with STATELOCK:
                         if (STATE == "WORK"):
                             turnOffLED()                # turn off indicator lights
+                            time.sleep(1)
                             alarmOn()                   # turn alarms on
                             alarmIsOn = True
                             workTimerStarted = None     # stop work timer
@@ -287,10 +288,11 @@ def stateMachine():
                     with STATELOCK:
                         if (STATE == "REST"):
                             turnOffLED()                # turn off indicator lights
+                            time.sleep(10)
                             alarmOn()                   # turn alarms on
                             alarmIsOn = True
                             restTimerStarted = None     # stop rest timer
-                            restIndicatorOn = False     # stop lights
+                            #restIndicatorOn = False     # stop lights #get rid of this
 
                     '''
                         # ask user a question if there is one
