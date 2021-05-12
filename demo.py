@@ -37,7 +37,7 @@ TIMERPIN = 23
 BTNPIN = 24 #pin for the general button #blue?
 
 #LIGHTS
-DATA = SOUNDPIN #because we are sharing the same PWM pin as the SOUNDPIN #previously 21
+DATA = 21 #SOUNDPIN #because we are sharing the same PWM pin as the SOUNDPIN #previously 21
 STOR = 13
 SHIFT = 18
 NSHIFT = 16
@@ -85,27 +85,35 @@ print("now finished with pomodoro in demo")
 turnOffLED()
 '''
 setupMotors(IN1, IN2, EN1, IN3, IN4, EN2)
+'''
 motorTest(IN1, IN2, EN1, IN3, IN4, EN2)
 sleep(2)
 rightTurn(IN1, IN2, EN1, IN3, IN4, EN2)
 sleep(2)
 leftTurn(IN1, IN2, EN1, IN3, IN4, EN2)
 sleep(2)
+'''
 stopMotors(IN1, IN2, EN1, IN3, IN4, EN2)
 
-readDist(0)
+#readDist(0)
 #registerTap()
 #probably won't get to this - used to answer questions on the OLED display
 setupBtn(BTNPIN)
-if (buttonPressed(BTNPIN)):
-	print("blue button pressed")
 
-disp = setupDisplay(RST)
-displayOn(disp)
-sleep(2)
-displayImage(disp)
-sleep(1)
-displayText(text, disp)
-displayOff(disp)
+try:
+	while True:
+		buttonPressed(BTNPIN)
+		print("blue button pressed")
 
-GPIO.cleanup()
+		disp = setupDisplay(RST)
+		displayOn(disp)
+		sleep(2)
+		displayImage(disp)
+		sleep(1)
+		displayText(text, disp)
+		displayOff(disp)
+
+		GPIO.cleanup()
+except KeyboardInterrupt:
+	stopMotors(IN1, IN2, EN1, IN3, IN4, EN2)
+	GPIO.cleanup()

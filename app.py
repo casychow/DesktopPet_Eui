@@ -86,7 +86,7 @@ LBbeats = [2, 0.5, 1, 1, 1, 1, 2, 1, 1, 2, 1, 1, 2, 2, 0.5, 1,
 SOUNDPIN = 12
 
 # Pins for lights
-DATA = SOUNDPIN
+DATA = 21 #SOUNDPIN
 STOR = 13
 SHIFT = 18
 NSHIFT = 16
@@ -111,6 +111,7 @@ RESPOND_NO_BTN = None
 ''' State machine functions '''
 
 STATE = "IDLE"
+STATELOCK = threading.Lock()
 alarmIsOn = False
 workTimerStarted = None
 restTimerStarted = None
@@ -153,8 +154,12 @@ def resetButtonThread():
     global userRespondNo
 
     while True:
-        # if red button is pressed
-        if (buttonPressed(RESET_BTN)): #STATE != IDLE
+        # block while red button is not pressed
+        #buttonPressed(RESET_BTN) #STATE != IDLE
+        while (not buttonPressed(RESET_BTN)):
+            continue
+
+        with STATELOCK:
             print("red pressed!")
             STATE = "IDLE"
             workTimerStarted = None
@@ -162,18 +167,21 @@ def resetButtonThread():
 
             displayText("Session ended early... this won't count!")
 
+            '''
             # if alarm is on (i.e. pressed red button while alarm is on)
             if (alarmIsOn):
                 alarmOff()
                 alarmIsOn = False
-
+            '''
             # reset all fields back to defaults
             euiGotAResponse = False
             euiAskAQuestion = False
             userRespondYes = False
             userRespondNo = False
+        if (alarmIsOn):
+            alarmOff()
+            alarmIsOn = False
 
-            time.sleep(1)
 
 def stateMachine():
     global STATE
@@ -198,39 +206,53 @@ def stateMachine():
     '''
 
     while True:
-        print("STATE =", STATE)
-        time.sleep(1)
+        #print("STATE =", STATE)
+        #time.sleep(1)
         if (STATE == "IDLE"):
-            print("in IDLE...")
+            print("STATE =", STATE)
+
             # block while blue button is not pressed
             while (not buttonPressed(POMODORO_BTN)):
-                print("inside while IDLE")
                 continue
 
             # set up fields for user to start work session
-            STATE = "WORK"
-            workTimerStarted = time.time()
-            displayText("Time to start working! FIGHTING!")
+            with STATELOCK:
+                STATE = "WORK"
+                workTimerStarted = time.time()
+                displayText("Time to start working! FIGHTING!")
 
         if (STATE == "WORK"):
-            time.sleep(0.1*60)
+            print("STATE =", STATE)
+            #time.sleep(0.1*60)
             #wait for button press (wait for edge function)
             #acquire lock
             #
 
             # if duration of the work session is over
-#            if (time.time()-workTimerStarted >= (USER_SETTINGS['workPeriod']*60)):
-            if (time.time()-workTimerStarted >= (0.1*60)):
-                alarmOn()                   # turn alarms on
-                alarmIsOn = True
-                workTimerStarted = None     # stop work timer
+            #if (time.time()-workTimerStarted >= (USER_SETTINGS['workPeriod']*60)):
+            try:
+             if (time.time()-workTimerStarted >= (0.1*60)):
+                with STATELOCK:
+                    if (STATE == "WORK"):
+                        alarmOn()                   # turn alarms on
+                        alarmIsOn = True
+                        workTimerStarted = None     # stop work timer
+                # add work session to database
+                insertUserData(True, euiAskAQuestion,
+                                euiGotAResponse, USER_SETTINGS['workPeriod'])
 
                 # block while blue button is not pressed && state is still WORK
-                while (not buttonPressed(POMODORO_BTN) and STATE == "WORK"):
+                #buttonPressed(POMODORO_BTN)
+                while (not buttonPressed(POMODORO_BTN) and (STATE == "WORK")):
                     continue
 
-                alarmOff()      # turn alarms off
-                alarmIsOn = False
+                # state changed (i.e. red button pressed while waiting)
+                #if (STATE != "WORK"):
+                #    continue
+                with STATELOCK:
+                     if (STATE == "WORK"):
+                         alarmOff()      # turn alarms off
+                         alarmIsOn = False
 
                 '''
                 # ask user a question if there is one
@@ -249,41 +271,45 @@ def stateMachine():
                     displayResponse(False)  # display a "try again" message
                 '''
 
-                # add work session to database
-                insertUserData(True, euiAskAQuestion,
-                                euiGotAResponse, USER_SETTINGS['workPeriod'])
-
                 '''
                 euiAskedAQuestion = False   # reset s.t. eui have not asked a question
                 euiGotAResponse = False
                 '''
 
                 # set up fields for user to start rest session
-                STATE = "REST"
-                restTimerStarted = time.time()
+                with STATELOCK:
+                    if (STATE == "WORK"):
+                        STATE = "REST"
+                        restTimerStarted = time.time()
+                        displayText("REST TIME :)")
+            except TypeError: #if reset button is presed before timerbtn has elapsed
+             continue
 
-                displayText("REST TIME :)")
-
-            else:   # work session isn't over
-                displayWorkModeIndicator()  # display work mode indicator
+#            displayWorkModeIndicator()  # display work mode indicator
 
         if (STATE == "REST"):
-
+            print("STATE =", STATE)
+            time.sleep(0.1*60)
             # if duration of the rest session is over
 #            if (time.time()-restTimerStarted >= (USER_SETTINGS['restPeriod']*60)):
-            if (time.time()-restTimerStarted >= (0.1*60)):
-                alarmOn()                   # turn alarms on
-                alarmIsOn = True
-                restTimerStarted = None     # stop rest timer
+            alarmOn()                   # turn alarms on
+            alarmIsOn = True
+            restTimerStarted = None     # stop rest timer
 
-                # block while blue button is not pressed && state is still REST
-                while (not buttonPressed(POMODORO_BTN) and STATE == "REST"):
-                    continue
+            # block while blue button is not pressed && state is still REST
+            #buttonPressed(POMODORO_BTN)
+            while (not buttonPressed(POMODORO_BTN)):
+                continue
 
-                alarmOff()      # turn alarms off
-                alarmIsOn = False
+            # state is changed (i.e. red button is pressed)
+            #if(STATE != "REST"):
+            #    continue
+            #REMOVE ^
 
-                '''
+            alarmOff()      # turn alarms off
+            alarmIsOn = False
+
+            '''
                 # ask user a question if there is one
                 euiAskAQuestion = (USER_SETTINGS['restOption'] != 1)
 
@@ -298,31 +324,25 @@ def stateMachine():
                     displayResponse(True)   # display encouraging response
                 else:                       # else user did not do as expected
                     displayResponse(False)  # display a "try again" message
-                '''
+            '''
 
-                # add rest session to database
-                insertUserData(False, euiAskAQuestion,
+            # add rest session to database
+            insertUserData(False, euiAskAQuestion,
                                     euiGotAResponse, USER_SETTINGS['restPeriod'])
 
-                '''
+            '''
                 euiAskedAQuestion = False   # reset s.t. eui have not asked a question
                 euiGotAResponse = False
-                '''
+            '''
 
-                # set up fields for user to start work session
+            # set up fields for user to start work session
+            with STATELOCK:
                 STATE = "WORK"
-                workTimerStarted = time.time()
+            workTimerStarted = time.time()
 
-                displayText("Time to get back to work!!")
+            displayText("Time to get back to work!!")
 
-            else:   # rest session isn't over
-                displayRestModeIndicator()  # display rest mode indicator
-
-def euiThread():
-    eui = threading.Thread(target=stateMachine)
-    eui.daemon = True
-    eui.start()
-
+            #displayRestModeIndicator()  # display rest mode indicator
 
 ''' Run at start up '''
 
@@ -342,11 +362,6 @@ def runAtStartup():
     setup()
     makeSound(SOUNDPIN)
     displayMessageAtStartup()
-    euiThread()
-
-    while True:
-        continue
-
 
 ''' OLED Display Functions '''
 
@@ -506,6 +521,7 @@ def insertUserData(userDidWork, askedAQuestion,
 if __name__ == '__main__':
     try:
         runAtStartup()
+        stateMachine()
         #test button press here
         '''
         alarmOn()

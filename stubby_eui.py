@@ -18,6 +18,7 @@ def setupBtn(pin):
 	print("setupBtn for pin:", pin)
 	GPIO.setmode(GPIO.BCM)
 	GPIO.setup(pin, GPIO.IN)
+	#GPIO.setup(pin, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
 
 def waitForBtnPress(timerPin, duration):
 	timerRunning = False    # timer is initially not running
@@ -46,7 +47,6 @@ def waitForBtnPress(timerPin, duration):
 					print("Time ended")
 					timerRunning = False
 					print("Waiting for button press to start timer...")
-
 	except KeyboardInterrupt:
 		print("waitForBtnEnd forced to end")
 		GPIO.cleanup()
@@ -292,7 +292,6 @@ def registerTap():
 	print("gets a signal from linear softpot")
 
 def buttonPressed(pin):
-	'''
 	try:
 		while True:
 			#print("Awaiting button press")
@@ -305,9 +304,13 @@ def buttonPressed(pin):
 				return False
 	except KeyboardInterrupt:
 		print("\t^C was pressed")
-	'''
+
 	#timeout in ms-> ie. 6000ms = 6s
-	return GPIO.wait_for_edge(pin, GPIO.RISING, timeout=6000)
+	#GPIO.setmode(GPIO.BCM)
+	#GPIO.wait_for_edge(pin, GPIO.RISING)
+	#wait_for_edge is designed to block program until an edge is detected
+	#GPIO.add_event_detect(pin, GPIO.RISING)
+	#print("button was pressed")
 
 ## display ##
 
