@@ -221,8 +221,8 @@ def stateMachine():
 
             try:
                 # if duration of the work session is over
-                #if (time.time()-workTimerStarted >= (USER_SETTINGS['workPeriod']*60)):
-                if (time.time()-workTimerStarted >= (0.1*60)):
+                if (time.time()-workTimerStarted >= (USER_SETTINGS['workPeriod']*60)):
+                #if (time.time()-workTimerStarted >= (0.1*60)):	# test code
 
                     with STATELOCK:
                         if (STATE == "WORK"):
@@ -259,7 +259,6 @@ def stateMachine():
                     '''
 
                     # block while blue button is not pressed && state is still WORK
-                    #buttonPressed(POMODORO_BTN)
                     while (not buttonPressed(POMODORO_BTN) and (STATE == "WORK")):
                         continue
 
@@ -283,8 +282,8 @@ def stateMachine():
 
             try:
                 # if duration of the rest session is over
-    #            if (time.time()-restTimerStarted >= (USER_SETTINGS['restPeriod']*60)):
-                if (time.time()-restTimerStarted >= (0.1*60)):
+                if (time.time()-restTimerStarted >= (USER_SETTINGS['restPeriod']*60)):
+                #if (time.time()-restTimerStarted >= (0.1*60)):	# test code
                     with STATELOCK:
                         if (STATE == "REST"):
                             turnOffLED()                # turn off indicator lights
