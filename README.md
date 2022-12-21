@@ -5,6 +5,9 @@ NYU Tandon Senior Design Project 2020-2021
 Cassandra Chow (cc5718@nyu.edu)
 Qin Ying Chen (qyc206@nyu.edu)
 
+## Project Video
+[![image](https://user-images.githubusercontent.com/58012214/208793198-52c0bd20-5fe9-4e71-8ef8-f1d4d317fa01.png)](https://youtu.be/WQZOQiDK_hM)
+
 ## Project Inpiration
 In our experience, many programmers, university students, and office workers toil at their desks 
 for long periods of time to meet deadlines and complete tasks. However, during this period of 
